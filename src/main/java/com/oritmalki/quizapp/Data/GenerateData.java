@@ -4,7 +4,6 @@ import com.oritmalki.quizapp.model.Answer;
 import com.oritmalki.quizapp.model.Question;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -51,7 +50,7 @@ public class GenerateData {
             new Answer("Sousaphone", false), new Answer("Drums", true)};
 
 
-    HashMap<String, Integer> AnswerSheet = new HashMap<>();
+//    HashMap<String, Integer> AnswerSheet = new HashMap<>();
 
 
 

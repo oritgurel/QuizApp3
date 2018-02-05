@@ -30,6 +30,7 @@ import com.oritmalki.quizapp.R;
 import com.oritmalki.quizapp.model.Answer;
 import com.oritmalki.quizapp.model.Question;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,7 +46,6 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     private ViewGroup innerQuestionLayout;
     private Button submitButton;
     private TextView questionTV;
-
 
 
     private List<Question> questions = QuestionsRepository.getInstance().getQuestions();
@@ -111,7 +111,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         }
 
         Intent intent = new Intent(this.getContext(), FinalScoreActivity.class);
-        intent.putExtra("Score",finalScore);
+        intent.putExtra("Score", finalScore);
         startActivity(intent);
     }
 
@@ -161,7 +161,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         layoutParams.gravity = Gravity.LEFT;
 
         LayoutInflater inflater1 = LayoutInflater.from(getContext());
-        RadioGroup rg = (RadioGroup) inflater1.inflate(R.layout.answers_radiogroup_layout, innerQuestionLayout, false);
+        final RadioGroup rg = (RadioGroup) inflater1.inflate(R.layout.answers_radiogroup_layout, innerQuestionLayout, false);
         rg.setOrientation(LinearLayout.VERTICAL);
         if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
             rg.setTextAlignment(View.TEXT_ALIGNMENT_INHERIT);
@@ -190,6 +190,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                     //get answer from list
                     Answer[] answers = question.getAnswers();
                     rb[i].setText(answers[i].getAnswer());
+
                     rb[i].setOnCheckedChangeListener(new OnCheckedChangeListener() {
                         @Override
                         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -232,24 +233,56 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                         @Override
                         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                             question.setScore(0);
-                            int score = question.getScore();
+                            int score = 0;
 
-                            for (int i = 0; i < question.getAnswers().length; i++) {
-                                if ((buttonView.isChecked() && buttonView.getId() == i && question.getAnswers()[i].getCorrect() == true) ||
-                                        (buttonView.isChecked() == false && buttonView.getId() == i && question.getAnswers()[i].getCorrect() == false)) {
-                                    score = 10;
+                            //get count of correct answers in answers[]
+                            int numOfCorrectAnswers = getCountOfcorrectAnswers(answers);
 
-                                    if ((buttonView.isChecked() == false && buttonView.getId() == i && question.getAnswers()[i].getCorrect() == true) ||
-                                            (buttonView.isChecked() && buttonView.getId() == i && question.getAnswers()[i].getCorrect() == false)) {
-                                        score = 0;
-                                    }
+                            //get buttonViews array
+                            CheckBox[] buttonViews = getButtonViewsArray(rg);
 
-                                }
+                            //get count of checked answers
+                            int numOfCheckedButtons = getCountOfCheckedButtons(buttonViews);
+
+                            //get List of checked buttons
+                            List<CheckBox> checkedButtonsList = new ArrayList<>(getCheckedButtonsList(rg));
+
+                            //get List of unchecked buttons
+                            List<CheckBox> unCheckedButtonsList = new ArrayList<>(getUnCheckedButtonsList(rg));
+
+                            //primary filtering
+                            if (numOfCheckedButtons > numOfCorrectAnswers || numOfCheckedButtons < numOfCorrectAnswers) {
+                                score = 0;
                             }
-                            question.setScore(score);
-                        }
+                            //in case that number of checked answers equals number of correct answers - check if checked answers are correct:
+                            else {
+                                //test the checked buttons list
+                                for (int i = 0; i < checkedButtonsList.size(); i++) {
+                                    if (question.getAnswers()[checkedButtonsList.get(i).getId()].getCorrect() == true) {
+                                        score = 10; //if that's the final result of loop, checked buttons are CORRECT
+                                    } else {
+                                        score = 0;
+                                        break; //get out of loop and set score 0
+                                    }
+                                }
+                                // if checked are correct, test the unchecked buttons, else go to set the 0 score
+                                if (score == 10) {
 
+                                    for (int i = 0; i < unCheckedButtonsList.size(); i++) {
+                                        if (question.getAnswers()[unCheckedButtonsList.get(i).getId()].getCorrect() == false) {
+                                            score = 10; //if thats the final result of loop, unChecked buttons are CORRECT
+                                        } else {
+                                            score = 0;
+                                            break; //get out of loop and set score 0
+                                        }
+                                    }
+                                }
+                                question.setScore(score);
+                            }
+                        }
                     });
+
+                    //continue to set the view
                     rg.addView(checkBox);
                 }
                 innerQuestionLayout.addView(rg);
@@ -274,8 +307,63 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         }
     }
 
-        public interface QuestionFragmentListener {
+    public interface QuestionFragmentListener {
         void onQuestionSelected(Question question);
+    }
+
+    //utility methods
+
+    public int getCountOfcorrectAnswers(Answer[] answers) {
+        int countOfcorrectAnswers = 0;
+        for (int i = 0; i < answers.length; i++) {
+            if (answers[i].getCorrect() == true) {
+                countOfcorrectAnswers++;
+            }
+        }
+        return countOfcorrectAnswers;
+    }
+
+    public int getCountOfCheckedButtons(CheckBox[] checkBoxes) {
+        int countOfCheckedButtons = 0;
+        for (int i = 0; i < checkBoxes.length; i++) {
+            if (checkBoxes[i].isChecked()) {
+                countOfCheckedButtons++;
+            }
+        }
+        return countOfCheckedButtons;
+    }
+
+    //get buttonViews array
+    public CheckBox[] getButtonViewsArray(ViewGroup viewGroup) {
+        CheckBox[] buttonViews = new CheckBox[viewGroup.getChildCount()];
+        for (int i = 0; i < question.getAnswers().length; i++) {
+            buttonViews[i] = (CheckBox) viewGroup.getChildAt(i);
+        }
+        return buttonViews;
+    }
+
+    //get checked buttons ArrayList
+    public List<CheckBox> getCheckedButtonsList(ViewGroup viewGroup) {
+        List<CheckBox> checkedButtons = new ArrayList<>(getCountOfCheckedButtons(getButtonViewsArray(viewGroup)));
+        for (int i = 0; i < question.getAnswers().length; i++) {
+            CheckBox cb = (CheckBox) viewGroup.getChildAt(i);
+            if (cb.isChecked()) {
+                checkedButtons.add(cb);
+            }
+        }
+        return checkedButtons;
+    }
+
+    //get unchecked buttons ArrayList
+    public List<CheckBox> getUnCheckedButtonsList(ViewGroup viewGroup) {
+        List<CheckBox> unCheckedButtons = new ArrayList<>(question.getAnswers().length - getCountOfCheckedButtons(getButtonViewsArray(viewGroup)));
+        for (int i = 0; i < question.getAnswers().length; i++) {
+            CheckBox cb = (CheckBox) viewGroup.getChildAt(i);
+            if (cb.isChecked() == false) {
+                unCheckedButtons.add(cb);
+            }
+        }
+        return unCheckedButtons;
     }
 
 }
