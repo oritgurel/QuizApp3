@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +25,6 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.LayoutParams;
 import android.widget.TextView;
 
-import com.oritmalki.quizapp.Data.GenerateData;
 import com.oritmalki.quizapp.Data.QuestionsRepository;
 import com.oritmalki.quizapp.R;
 import com.oritmalki.quizapp.model.Answer;
@@ -35,14 +36,12 @@ import java.util.List;
  * Created by Orit on 1.2.2018.
  */
 
-public class QuestionFragment extends Fragment implements View.OnClickListener {
+public class QuestionFragment extends Fragment implements View.OnClickListener, TextWatcher {
 
     //declare layout views...
     private static final String ARGS_QUESTION_ID = "args_question_id";
     private QuestionFragmentListener listener;
     private Question question;
-    private GenerateData generateData;
-    private ViewGroup questionLayout;
     private ViewGroup innerQuestionLayout;
     private Button submitButton;
     private TextView questionTV;
@@ -50,9 +49,6 @@ public class QuestionFragment extends Fragment implements View.OnClickListener {
 
 
     private List<Question> questions = QuestionsRepository.getInstance().getQuestions();
-
-
-
 
     public static QuestionFragment newInstance(int questionId) {
         QuestionFragment questionFragment = new QuestionFragment();
@@ -76,9 +72,6 @@ public class QuestionFragment extends Fragment implements View.OnClickListener {
         int questionId = getArguments().getInt(ARGS_QUESTION_ID);
         this.question = QuestionsRepository.getInstance().getQuestion(questionId);
 
-
-
-
     }
 
 
@@ -89,135 +82,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener {
 
         View view = inflater.inflate(R.layout.question_fragment_layout, container, false);
 
-        //list of differend backgrounds for layout view
-//        List<Drawable> backgrounds = new ArrayList<>();
-//        backgrounds.add(getResources().getDrawable(R.drawable.back1));
-//        backgrounds.add(getResources().getDrawable(R.drawable.back2));
-//        backgrounds.add(getResources().getDrawable(R.drawable.back3));
-
-        //init views
-
-        questionTV = view.findViewById(R.id.question_tv);
-        innerQuestionLayout = view.findViewById(R.id.inner_question_layout);
-        submitButton = view.findViewById(R.id.submit_but);
-        submitButton.setOnClickListener(this);
-
-
-        submitButton.setVisibility(View.INVISIBLE);
-        if(question.getId() == questions.size()-1)
-            submitButton.setVisibility(View.VISIBLE);
-
-        //set data to views
-        final int questionId = getArguments().getInt(ARGS_QUESTION_ID);
-        questionTV.setText(questions.get(questionId).getQuestion());
-
-
-//        setLayoutParams
-        float density = getResources().getDisplayMetrics().density;
-        RadioGroup.LayoutParams layoutParams = new RadioGroup.LayoutParams(RadioGroup.LayoutParams.WRAP_CONTENT, RadioGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams.setMargins(100, 5, 24, 5);
-        layoutParams.gravity = Gravity.LEFT;
-
-        LayoutInflater inflater1 = LayoutInflater.from(getContext());
-        RadioGroup rg = (RadioGroup) inflater1.inflate(R.layout.answers_radiogroup_layout, innerQuestionLayout, false);
-        rg.setOrientation(LinearLayout.VERTICAL);
-        if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
-            rg.setTextAlignment(View.TEXT_ALIGNMENT_INHERIT);
-        }
-        int type = questions.get(questionId).getType();
-            switch (type) {
-                case Answer.ONE_CORRECT_ANSWER:
-
-                    final RadioButton[] rb = new RadioButton[question.getAnswers().length];
-
-
-        for (int i = 0; i < question.getAnswers().length; i++) {
-                        rb[i] = new RadioButton(getContext());
-                        rb[i].setTextSize(1, 18);
-                        rb[i].setLayoutParams(layoutParams);
-                        if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
-                            rb[i].setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-                            rb[i].setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
-                            rb[i].setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
-                        }
-
-
-
-
-                        //get answer from list
-                        Answer[] answers = question.getAnswers();
-                        rb[i].setText(answers[i].getAnswer());
-                        rb[i].setOnCheckedChangeListener(new OnCheckedChangeListener() {
-                            @Override
-                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                question.setScore(0);
-
-                                int score = QuestionsRepository.getInstance().getQuestion(question.getId()).getScore();
-
-                                for (int i=0; i<question.getAnswers().length; i++) {
-                                    String answer = question.getAnswers()[i].getAnswer();
-                                    if (buttonView.isChecked()) {
-                                        boolean isCorrect = question.getAnswers()[i].getCorrect();
-                                        if (isCorrect) {
-                                            score +=10;
-                                            question.setScore(score);
-                                        }
-
-                                    }
-                                }
-                            }
-                        });
-                        rg.addView(rb[i]);
-                    }
-                    innerQuestionLayout.addView(rg);
-
-                    break;
-                case Answer.MULTIPLE_ANSWERS:
-
-                    for (int i = 0; i < question.getAnswers().length; i++) {
-                        CheckBox checkBox = new CheckBox(getContext());
-                        layoutParams.gravity = Gravity.LEFT;
-                        checkBox.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-                        checkBox.setLayoutParams(layoutParams);
-                        checkBox.setTextSize(1, 18);
-                        //get answer from list
-                        Answer[] answers = question.getAnswers();
-                        checkBox.setText(answers[i].getAnswer());
-//                        checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-//                            @Override
-//                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                                int score = QuestionsRepository.getInstance().getQuestion(getId()).getScore();
-//
-//                                for (int i=0; i<buttonView.length(); i++) {
-//                                    if (buttonView.isChecked()) {
-//                                        boolean isCorrect = question.getAnswers()[i].getCorrect();
-//                                        if (for ())
-//                                            QuestionsRepository.getInstance().getQuestion(getId()).setScore(score);
-//                                        }
-//
-//                                    }
-//                                }
-//                            }
-//                        });
-                        rg.addView(checkBox);
-                    }
-                    innerQuestionLayout.addView(rg);
-
-                    break;
-                case Answer.TEXT_ANSWER:
-                    EditText editText = new EditText(getContext());
-                    layoutParams.gravity = Gravity.CENTER;
-                    layoutParams.width = LayoutParams.MATCH_PARENT;
-                    layoutParams.rightMargin = 100;
-                    editText.setLayoutParams(layoutParams);
-                    editText.setTextSize(18);
-                    editText.setHint("type your answer here");
-                    editText.setGravity(View.TEXT_ALIGNMENT_CENTER);
-                    rg.addView(editText);
-                    innerQuestionLayout.addView(rg);
-                    break;
-            }
-
+        initializeViews(view);
 
         return view;
     }
@@ -240,15 +105,176 @@ public class QuestionFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
 
         //calculate score
-        int finalScore = question.getScore();
+        int finalScore = 0;
+        for (Question question : questions) {
+            finalScore += question.getScore();
+        }
 
         Intent intent = new Intent(this.getContext(), FinalScoreActivity.class);
         intent.putExtra("Score",finalScore);
         startActivity(intent);
     }
 
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-    public interface QuestionFragmentListener {
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        question.setScore(0);
+        int score;
+
+        if (s.toString().equals("crescendo") ||
+                s.toString().equals("Crescendo")) {
+            score = 10;
+            question.setScore(score);
+        }
+    }
+
+    @RequiresApi(api = VERSION_CODES.JELLY_BEAN_MR1)
+    public void initializeViews(View view) {
+        questionTV = view.findViewById(R.id.question_tv);
+        innerQuestionLayout = view.findViewById(R.id.inner_question_layout);
+        submitButton = view.findViewById(R.id.submit_but);
+        submitButton.setOnClickListener(this);
+
+
+        submitButton.setVisibility(View.INVISIBLE);
+        if (question.getId() == questions.size() - 1)
+            submitButton.setVisibility(View.VISIBLE);
+
+        //set data to views
+        final int questionId = getArguments().getInt(ARGS_QUESTION_ID);
+        questionTV.setText(questions.get(questionId).getQuestion());
+
+        QuestionsRepository.getInstance().getQuestion(questionId).setScore(0);
+
+        //setLayoutParams
+        RadioGroup.LayoutParams layoutParams = new RadioGroup.LayoutParams(RadioGroup.LayoutParams.WRAP_CONTENT, RadioGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.setMargins(100, 5, 24, 5);
+        layoutParams.gravity = Gravity.LEFT;
+
+        LayoutInflater inflater1 = LayoutInflater.from(getContext());
+        RadioGroup rg = (RadioGroup) inflater1.inflate(R.layout.answers_radiogroup_layout, innerQuestionLayout, false);
+        rg.setOrientation(LinearLayout.VERTICAL);
+        if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
+            rg.setTextAlignment(View.TEXT_ALIGNMENT_INHERIT);
+        }
+        int type = questions.get(questionId).getType();
+
+        //switch for answer types
+        switch (type) {
+
+            case Answer.ONE_CORRECT_ANSWER:
+
+                final RadioButton[] rb = new RadioButton[question.getAnswers().length];
+
+
+                for (int i = 0; i < question.getAnswers().length; i++) {
+                    rb[i] = new RadioButton(getContext());
+                    rb[i].setTextSize(1, 18);
+                    rb[i].setLayoutParams(layoutParams);
+                    if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
+                        rb[i].setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+                        rb[i].setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
+                        rb[i].setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
+                    }
+
+
+                    //get answer from list
+                    Answer[] answers = question.getAnswers();
+                    rb[i].setText(answers[i].getAnswer());
+                    rb[i].setOnCheckedChangeListener(new OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                            question.setScore(0);
+
+                            int score = QuestionsRepository.getInstance().getQuestion(question.getId()).getScore();
+
+                            for (int i = 0; i < question.getAnswers().length; i++) {
+                                if (buttonView.getText().equals(question.getAnswers()[i].getAnswer())) {
+                                    boolean isCorrect = question.getAnswers()[i].getCorrect();
+                                    if (isCorrect) {
+                                        score += 10;
+
+                                    }
+
+                                }
+                            }
+                            question.setScore(score);
+                        }
+                    });
+                    rg.addView(rb[i]);
+                }
+                innerQuestionLayout.addView(rg);
+
+                break;
+
+            case Answer.MULTIPLE_ANSWERS:
+
+                for (int i = 0; i < question.getAnswers().length; i++) {
+                    final CheckBox checkBox = new CheckBox(getContext());
+                    layoutParams.gravity = Gravity.LEFT;
+                    checkBox.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+                    checkBox.setLayoutParams(layoutParams);
+                    checkBox.setTextSize(1, 18);
+                    checkBox.setId(i);
+                    //get answer from list
+                    final Answer[] answers = question.getAnswers();
+                    checkBox.setText(answers[i].getAnswer());
+                    checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                            question.setScore(0);
+                            int score = question.getScore();
+
+                            for (int i = 0; i < question.getAnswers().length; i++) {
+                                if ((buttonView.isChecked() && buttonView.getId() == i && question.getAnswers()[i].getCorrect() == true) ||
+                                        (buttonView.isChecked() == false && buttonView.getId() == i && question.getAnswers()[i].getCorrect() == false)) {
+                                    score = 10;
+
+                                    if ((buttonView.isChecked() == false && buttonView.getId() == i && question.getAnswers()[i].getCorrect() == true) ||
+                                            (buttonView.isChecked() && buttonView.getId() == i && question.getAnswers()[i].getCorrect() == false)) {
+                                        score = 0;
+                                    }
+
+                                }
+                            }
+                            question.setScore(score);
+                        }
+
+                    });
+                    rg.addView(checkBox);
+                }
+                innerQuestionLayout.addView(rg);
+
+                break;
+
+            case Answer.TEXT_ANSWER:
+
+                EditText editText = new EditText(getContext());
+                layoutParams.gravity = Gravity.CENTER;
+                layoutParams.width = LayoutParams.MATCH_PARENT;
+                layoutParams.rightMargin = 100;
+                editText.setLayoutParams(layoutParams);
+                editText.setTextSize(18);
+                editText.setHint("type your answer here");
+                editText.setGravity(View.TEXT_ALIGNMENT_CENTER);
+                editText.addTextChangedListener(this);
+
+                rg.addView(editText);
+                innerQuestionLayout.addView(rg);
+                break;
+        }
+    }
+
+        public interface QuestionFragmentListener {
         void onQuestionSelected(Question question);
     }
 

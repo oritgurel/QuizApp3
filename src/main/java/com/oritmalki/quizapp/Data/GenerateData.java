@@ -73,6 +73,9 @@ public class GenerateData {
             question.setType(getAnswerTypeOfArray(question.getAnswers()));
         }
 
+        //not working
+//        Collections.shuffle(questions);
+
         return questions;
     }
 

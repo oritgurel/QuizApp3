@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
-              <!--android:background="@drawable/welcomebg">-->
+              android:layout_height="match_parent"
+              android:background="@drawable/back1">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#95ffecb3"
+        android:background="#90ffecb3"
         android:layout_margin="40dp"
         android:orientation="vertical">
 
