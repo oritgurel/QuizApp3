@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.oritmalki.quizapp.view.MainActivity">
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/back1"/>
+
+    <!--<Toolbar-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:paddingHorizontal="16dp">-->
+
+        <!--<Button-->
+            <!--android:id="@+id/prv_butt"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="#ccc5af"-->
+            <!--android:text="Previous"-->
+            <!--android:textSize="18sp"-->
+            <!--android:layout_marginBottom="42dp"-->
+            <!--android:layout_marginHorizontal="16dp"-->
+            <!--android:layout_gravity="center_horizontal"-->
+            <!--/>-->
+
+        <!--<Button-->
+            <!--android:id="@+id/next_butt"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="#ccc5af"-->
+            <!--android:text="Next"-->
+            <!--android:textSize="18sp"-->
+            <!--android:layout_marginBottom="42dp"-->
+            <!--android:layout_marginHorizontal="16dp"-->
+            <!--android:layout_gravity="center_horizontal"-->
+            <!--/>-->
+
+    <!--</Toolbar>-->
+
+
+</RelativeLayout>
