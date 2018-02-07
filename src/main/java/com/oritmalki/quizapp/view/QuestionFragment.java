@@ -1,5 +1,6 @@
 package com.oritmalki.quizapp.view;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build.VERSION;
@@ -24,6 +25,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.LayoutParams;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.oritmalki.quizapp.Data.QuestionsRepository;
 import com.oritmalki.quizapp.R;
@@ -31,6 +33,8 @@ import com.oritmalki.quizapp.model.Answer;
 import com.oritmalki.quizapp.model.Question;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -41,11 +45,21 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
 
     //declare layout views...
     private static final String ARGS_QUESTION_ID = "args_question_id";
+    private static final String IS_CHECKBUTTON_CHECKED = "is_cButton_checked";
+    private static final String IS_RADIOBUTTON_CHECKED = "is_rButton_checked";
     private QuestionFragmentListener listener;
+    private OnButtonClickListener mOnButtonClickListener;
     private Question question;
     private ViewGroup innerQuestionLayout;
     private Button submitButton;
     private TextView questionTV;
+    private Button nextBut;
+    private Button prevBut;
+    public static boolean isCheckButtonChecked;
+    public static boolean isRadioButtonChecked;
+    public String[] goodRemarks = {"Great Job!", "keep it up!", "Excellent!", "Awesome!", "That is Correct!"};
+    public String[] halfCorrectRemarks = {"Almost...", "Not Exactly", "That is half correct"};
+    public String[] badRemarks = {"Wrong answer", "Try again", "Are you sure?", "Nope. Try again"};
 
 
     private List<Question> questions = QuestionsRepository.getInstance().getQuestions();
@@ -54,6 +68,8 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         QuestionFragment questionFragment = new QuestionFragment();
         Bundle bundle = new Bundle();
         bundle.putInt(ARGS_QUESTION_ID, questionId);
+        bundle.putBoolean(IS_CHECKBUTTON_CHECKED ,QuestionFragment.isCheckButtonChecked);
+        bundle.putBoolean(IS_RADIOBUTTON_CHECKED ,QuestionFragment.isRadioButtonChecked);
         questionFragment.setArguments(bundle);
         return questionFragment;
     }
@@ -61,8 +77,15 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof QuestionFragmentListener) {
-            listener = (QuestionFragmentListener) context;
+//        if (context instanceof QuestionFragmentListener) {
+//            listener = (QuestionFragmentListener) context;
+//        }
+
+        try {
+            mOnButtonClickListener = (OnButtonClickListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(((Activity) context).getLocalClassName()
+                    + " must implement OnButtonClickListener");
         }
     }
 
@@ -104,50 +127,48 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     @Override
     public void onClick(View v) {
 
-        //calculate score
-        int finalScore = 0;
-        for (Question question : questions) {
-            finalScore += question.getScore();
+        switch (v.getId()) {
+
+            case R.id.submit_but:
+                //calculate score
+                int finalScore = 0;
+                for (Question question : questions) {
+                    finalScore += question.getScore();
+                }
+
+                Intent intent = new Intent(this.getContext(), FinalScoreActivity.class);
+                intent.putExtra("Score", finalScore);
+                startActivity(intent);
+                break;
+            default:
+                mOnButtonClickListener.onButtonClicked(v);
+                break;
         }
 
-        Intent intent = new Intent(this.getContext(), FinalScoreActivity.class);
-        intent.putExtra("Score", finalScore);
-        startActivity(intent);
-    }
-
-    @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
     }
 
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-    }
-
-    @Override
-    public void afterTextChanged(Editable s) {
-        question.setScore(0);
-        int score;
-
-        if (s.toString().equals("crescendo") ||
-                s.toString().equals("Crescendo")) {
-            score = 10;
-            question.setScore(score);
-        }
-    }
 
     @RequiresApi(api = VERSION_CODES.JELLY_BEAN_MR1)
+
     public void initializeViews(View view) {
+
+       //buttons and onclick events
+        prevBut = view.findViewById(R.id.prev_but);
+        nextBut = view.findViewById(R.id.next_but);
         questionTV = view.findViewById(R.id.question_tv);
         innerQuestionLayout = view.findViewById(R.id.inner_question_layout);
         submitButton = view.findViewById(R.id.submit_but);
         submitButton.setOnClickListener(this);
+        prevBut.setOnClickListener(this);
+        nextBut.setOnClickListener(this);
 
 
         submitButton.setVisibility(View.INVISIBLE);
-        if (question.getId() == questions.size() - 1)
+        if (question.getId() == questions.size() - 1) {
             submitButton.setVisibility(View.VISIBLE);
+            nextBut.setVisibility(View.INVISIBLE);
+        }
 
         //set data to views
         final int questionId = getArguments().getInt(ARGS_QUESTION_ID);
@@ -195,6 +216,10 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                         @Override
                         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                             question.setScore(0);
+                            String remark;
+
+                            if (buttonView.isChecked()) isChecked = true;
+                            QuestionFragment.isRadioButtonChecked = isChecked;
 
                             int score = QuestionsRepository.getInstance().getQuestion(question.getId()).getScore();
 
@@ -203,12 +228,21 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                                     boolean isCorrect = question.getAnswers()[i].getCorrect();
                                     if (isCorrect) {
                                         score += 10;
+                                        Collections.shuffle(Arrays.asList(goodRemarks));
+                                        remark = goodRemarks[0];
+                                        Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
 
                                     }
+                                    else if(isCorrect == false) {
 
+                                         Collections.shuffle(Arrays.asList(badRemarks));
+                                         remark = badRemarks[0];
+                                         Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                             }
                             question.setScore(score);
+
                         }
                     });
                     rg.addView(rb[i]);
@@ -230,10 +264,16 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                     final Answer[] answers = question.getAnswers();
                     checkBox.setText(answers[i].getAnswer());
                     checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
                         @Override
                         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                             question.setScore(0);
                             int score = 0;
+                            String remark;
+
+
+                            if (buttonView.isChecked()) isChecked = true;
+                            QuestionFragment.isCheckButtonChecked = isChecked;
 
                             //get count of correct answers in answers[]
                             int numOfCorrectAnswers = getCountOfcorrectAnswers(answers);
@@ -261,7 +301,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                                     if (question.getAnswers()[checkedButtonsList.get(i).getId()].getCorrect() == true) {
                                         score = 10; //if that's the final result of loop, checked buttons are CORRECT
                                     } else {
-                                        score = 0;
+
                                         break; //get out of loop and set score 0
                                     }
                                 }
@@ -271,13 +311,20 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                                     for (int i = 0; i < unCheckedButtonsList.size(); i++) {
                                         if (question.getAnswers()[unCheckedButtonsList.get(i).getId()].getCorrect() == false) {
                                             score = 10; //if thats the final result of loop, unChecked buttons are CORRECT
+                                                Collections.shuffle(Arrays.asList(goodRemarks));
+                                                remark = goodRemarks[0];
+                                                Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
                                         } else {
                                             score = 0;
+                                                    Collections.shuffle(Arrays.asList(halfCorrectRemarks));
+                                                    remark = halfCorrectRemarks[0];
+                                                    Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
                                             break; //get out of loop and set score 0
                                         }
                                     }
                                 }
                                 question.setScore(score);
+
                             }
                         }
                     });
@@ -306,9 +353,13 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                 break;
         }
     }
-
+    //interfaces
     public interface QuestionFragmentListener {
         void onQuestionSelected(Question question);
+    }
+
+    public interface OnButtonClickListener {
+        void onButtonClicked(View view);
     }
 
     //utility methods
@@ -366,4 +417,41 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         return unCheckedButtons;
     }
 
+    //Toast remarks
+    public void toastRemarks(String remark, String[] remarks) {
+        Collections.shuffle(Arrays.asList(remarks));
+        remark = goodRemarks[0];
+        Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        question.setScore(0);
+        int score;
+        String remark;
+
+        if (s.toString().equals("crescendo") ||
+                s.toString().equals("Crescendo")) {
+            score = 10;
+            question.setScore(score);
+            Collections.shuffle(Arrays.asList(goodRemarks));
+            remark = goodRemarks[0];
+            Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+        }
+        else if (s.toString().length() > 10) {
+            Collections.shuffle(Arrays.asList(badRemarks));
+            remark = badRemarks[0];
+            Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+        }
+    }
 }

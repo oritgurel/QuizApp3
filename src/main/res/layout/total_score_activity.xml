@@ -34,6 +34,17 @@
             android:textSize="32sp"
 
             />
+        <Button
+            android:id="@+id/review_answers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="review Answers"
+            android:gravity="center"
+            android:background="#ffecb3"
+            android:layout_weight="1"
+            android:textSize="24sp"
+            android:layout_margin="5dp"
+            />
 
         <Button
             android:id="@+id/try_again_butt"
@@ -41,11 +52,25 @@
             android:layout_height="wrap_content"
             android:text="try again"
             android:gravity="center"
-            android:background="#ffecb3"
+            android:background="#FFE082"
             android:layout_weight="1"
             android:textSize="24sp"
+            android:layout_margin="5dp"
 
             />
+
+        <Button
+            android:id="@+id/quit_but"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="quit"
+            android:gravity="center"
+            android:background="#FFD54F"
+            android:layout_weight="1"
+            android:textSize="24sp"
+            android:layout_margin="5dp"
+            />
+
     </LinearLayout>
 
 </LinearLayout>

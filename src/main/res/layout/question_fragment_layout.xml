@@ -38,76 +38,51 @@
         android:layout_gravity="center_horizontal"
         />
 
-
-
-        <!--<RadioGroup-->
-            <!--android:id="@+id/radio_group"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:background="#70FFFFFF"-->
-            <!--android:layout_weight="4"-->
-            <!--android:layout_gravity="center"-->
-            <!--android:paddingTop="16dp"-->
-            <!--android:layout_marginBottom="16dp"-->
-            <!--android:layout_marginHorizontal="32dp">-->
-            <!--<RadioButton-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_gravity="start"-->
-                <!--tools:text="Mozart"-->
-                <!--android:textSize="18dp"-->
-                <!--android:layout_marginHorizontal="16dp"-->
-                <!--android:layout_marginVertical="5dp"-->
-                <!--android:layout_marginRight="16dp"/>-->
-
-            <!--&lt;!&ndash;<RadioButton&ndash;&gt;-->
-                <!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:layout_gravity="start"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:layout_marginHorizontal="16dp"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:layout_marginVertical="5dp"&ndash;&gt;-->
-                <!--&lt;!&ndash;tools:text="Beethoven’s 9th Symphony"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:textSize="18dp"&ndash;&gt;-->
-                <!--&lt;!&ndash;/>&ndash;&gt;-->
-            <!--&lt;!&ndash;<RadioButton&ndash;&gt;-->
-                <!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:layout_gravity="start"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:layout_marginHorizontal="16dp"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:layout_marginVertical="5dp"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:checked="true"&ndash;&gt;-->
-                <!--&lt;!&ndash;tools:text="Richard Strauss’s Thus Spoke Zarathustra"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:textSize="18dp"&ndash;&gt;-->
-
-                <!--&lt;!&ndash;/>&ndash;&gt;-->
-
-            <!--&lt;!&ndash;<CheckBox&ndash;&gt;-->
-                <!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:checked="true"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:layout_marginHorizontal="16dp"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:layout_marginVertical="5dp"&ndash;&gt;-->
-                <!--&lt;!&ndash;tools:text="Richard"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:textSize="18dp"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:layout_gravity="start"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:buttonTint="#ffab91"/>&ndash;&gt;-->
-
-
-        <!--</RadioGroup>-->
-
-
     </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="24dp">
+
+    <Button
+        android:id="@+id/next_but"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#ccc5af"
+        android:text="Next"
+        android:textSize="18sp"
+        android:layout_marginBottom="42dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_toRightOf="@id/submit_but"
+        />
+
     <Button
         android:id="@+id/submit_but"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#ccc5af"
+        android:background="#FFF8E1"
         android:text="Submit"
         android:textSize="18sp"
         android:layout_marginBottom="42dp"
         android:layout_marginHorizontal="16dp"
-        android:layout_gravity="center_horizontal"
+        android:layout_centerHorizontal="true"
         />
+
+    <Button
+            android:id="@+id/prev_but"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#ccc5af"
+            android:text="Prev"
+            android:singleLine="true"
+            android:padding="5dp"
+            android:textSize="18sp"
+            android:layout_marginBottom="42dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_toLeftOf="@id/submit_but"
+            />
+    </RelativeLayout>
 
 </LinearLayout>
 

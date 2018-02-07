@@ -10,17 +10,19 @@ import com.oritmalki.quizapp.Data.GenerateData;
 import com.oritmalki.quizapp.Data.QuestionsRepository;
 import com.oritmalki.quizapp.R;
 import com.oritmalki.quizapp.model.Question;
+import com.oritmalki.quizapp.view.QuestionFragment.OnButtonClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements OnButtonClickListener {
 
     private ViewPager viewPager;
 
     private Button prevButton;
     private Button nextButton;
     private GenerateData generateData;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +58,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 viewPager.setAdapter(adapter);
             }
 
-    @Override
-    public void onClick(View v) {
 
+
+    @Override
+    public void onButtonClicked(View view) {
+
+        int currPos = viewPager.getCurrentItem();
+        switch (view.getId()) {
+            case R.id.next_but:
+                if (currPos != viewPager.getAdapter().getCount()) {
+                    viewPager.setCurrentItem(currPos + 1, true);
+                }
+                break;
+            case R.id.prev_but:
+                if (currPos !=0) {
+                    viewPager.setCurrentItem(currPos - 1, true);
+                }
+                break;
+            case R.id.review_answers:
+                viewPager.setCurrentItem(currPos - 1, true);
+                break;
+        }
     }
 }
