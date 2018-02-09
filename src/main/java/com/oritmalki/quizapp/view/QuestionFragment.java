@@ -57,9 +57,10 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     private Button prevBut;
     public static boolean isCheckButtonChecked;
     public static boolean isRadioButtonChecked;
-    public String[] goodRemarks = {"Great Job!", "keep it up!", "Excellent!", "Awesome!", "That is Correct!"};
+    public String[] goodRemarks = {"Great Job!", "keep it up!", "Excellent!", "Awesom!", "That is Correct!"};
     public String[] halfCorrectRemarks = {"Almost...", "Not Exactly", "That is half correct"};
     public String[] badRemarks = {"Wrong answer", "Try again", "Are you sure?", "Nope. Try again"};
+    String remark;
 
 
     private List<Question> questions = QuestionsRepository.getInstance().getQuestions();
@@ -148,6 +149,36 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
 
     }
 
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        question.setScore(0);
+        int score;
+        String remark;
+
+        if (s.toString().equals("crescendo") ||
+                s.toString().equals("Crescendo")) {
+            score = 10;
+            question.setScore(score);
+            Collections.shuffle(Arrays.asList(goodRemarks));
+            remark = goodRemarks[0];
+            Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+        }
+        else if (s.toString().length() > 10) {
+            Collections.shuffle(Arrays.asList(badRemarks));
+            remark = badRemarks[0];
+            Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @RequiresApi(api = VERSION_CODES.JELLY_BEAN_MR1)
 
@@ -216,28 +247,30 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                         @Override
                         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                             question.setScore(0);
-                            String remark;
 
+                            //for persistance try
                             if (buttonView.isChecked()) isChecked = true;
                             QuestionFragment.isRadioButtonChecked = isChecked;
+                            //
 
                             int score = QuestionsRepository.getInstance().getQuestion(question.getId()).getScore();
 
                             for (int i = 0; i < question.getAnswers().length; i++) {
-                                if (buttonView.getText().equals(question.getAnswers()[i].getAnswer())) {
-                                    boolean isCorrect = question.getAnswers()[i].getCorrect();
-                                    if (isCorrect) {
-                                        score += 10;
-                                        Collections.shuffle(Arrays.asList(goodRemarks));
-                                        remark = goodRemarks[0];
-                                        Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+                                if (buttonView.isChecked()) {
+                                    if (buttonView.getText().equals(question.getAnswers()[i].getAnswer())) {
+                                        boolean isCorrect = question.getAnswers()[i].getCorrect();
+                                        if (isCorrect) {
+                                            score += 10;
+                                            Collections.shuffle(Arrays.asList(goodRemarks));
+                                            remark = goodRemarks[0];
+                                            Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
 
-                                    }
-                                    else if(isCorrect == false) {
+                                        } else if (isCorrect == false) {
+                                            Collections.shuffle(Arrays.asList(badRemarks));
+                                            remark = badRemarks[0];
+                                            Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
 
-                                         Collections.shuffle(Arrays.asList(badRemarks));
-                                         remark = badRemarks[0];
-                                         Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+                                        }
                                     }
                                 }
                             }
@@ -247,6 +280,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                     });
                     rg.addView(rb[i]);
                 }
+
                 innerQuestionLayout.addView(rg);
 
                 break;
@@ -269,7 +303,6 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                             question.setScore(0);
                             int score = 0;
-                            String remark;
 
 
                             if (buttonView.isChecked()) isChecked = true;
@@ -311,21 +344,28 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                                     for (int i = 0; i < unCheckedButtonsList.size(); i++) {
                                         if (question.getAnswers()[unCheckedButtonsList.get(i).getId()].getCorrect() == false) {
                                             score = 10; //if thats the final result of loop, unChecked buttons are CORRECT
-                                                Collections.shuffle(Arrays.asList(goodRemarks));
-                                                remark = goodRemarks[0];
-                                                Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+
                                         } else {
                                             score = 0;
-                                                    Collections.shuffle(Arrays.asList(halfCorrectRemarks));
-                                                    remark = halfCorrectRemarks[0];
-                                                    Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+//                                                    Collections.shuffle(Arrays.asList(halfCorrectRemarks));
+//                                                    remark = halfCorrectRemarks[0];
+//                                                    Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
                                             break; //get out of loop and set score 0
                                         }
                                     }
                                 }
                                 question.setScore(score);
-
+                                if (score == 10) {
+                                    Collections.shuffle(Arrays.asList(goodRemarks));
+                                    remark = goodRemarks[0];
+                                    Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+                                }
+                                else if (score == 0) {
+                                    Collections.shuffle(Arrays.asList(badRemarks));
+                                    remark = badRemarks[0];
+                                    Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
                             }
+                        }
                         }
                     });
 
@@ -424,34 +464,5 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-    }
-
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-    }
-
-    @Override
-    public void afterTextChanged(Editable s) {
-        question.setScore(0);
-        int score;
-        String remark;
-
-        if (s.toString().equals("crescendo") ||
-                s.toString().equals("Crescendo")) {
-            score = 10;
-            question.setScore(score);
-            Collections.shuffle(Arrays.asList(goodRemarks));
-            remark = goodRemarks[0];
-            Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
-        }
-        else if (s.toString().length() > 10) {
-            Collections.shuffle(Arrays.asList(badRemarks));
-            remark = badRemarks[0];
-            Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
-        }
-    }
 }
