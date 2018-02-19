@@ -7,6 +7,16 @@ package com.oritmalki.quizapp.model;
 public class Answer {
     private String answer;
     private boolean isCorrect;
+    private boolean isChecked;
+
+    public boolean isChecked() {
+        return isChecked;
+    }
+
+    public void setChecked(boolean checked) {
+        isChecked = checked;
+    }
+
     public static final int ONE_CORRECT_ANSWER = 1;
     public static final int MULTIPLE_ANSWERS = 2;
     public static final int TEXT_ANSWER = 3;

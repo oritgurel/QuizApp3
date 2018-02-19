@@ -3,6 +3,8 @@ package com.oritmalki.quizapp.view;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
@@ -61,6 +63,11 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     public String[] halfCorrectRemarks = {"Almost...", "Not Exactly", "That is half correct"};
     public String[] badRemarks = {"Wrong answer", "Try again", "Are you sure?", "Nope. Try again"};
     String remark;
+    SharedPreferences preferences;
+    Editor editor;
+    public static final String INDEX_OF_CHECKED_BUTTON_KEY = "IndexOfCheckedButton";
+    public static int INDEX_OF_CHECKED_BUTTON = -1;
+    public RadioGroup rg;
 
 
     private List<Question> questions = QuestionsRepository.getInstance().getQuestions();
@@ -69,8 +76,6 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         QuestionFragment questionFragment = new QuestionFragment();
         Bundle bundle = new Bundle();
         bundle.putInt(ARGS_QUESTION_ID, questionId);
-        bundle.putBoolean(IS_CHECKBUTTON_CHECKED ,QuestionFragment.isCheckButtonChecked);
-        bundle.putBoolean(IS_RADIOBUTTON_CHECKED ,QuestionFragment.isRadioButtonChecked);
         questionFragment.setArguments(bundle);
         return questionFragment;
     }
@@ -96,6 +101,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         int questionId = getArguments().getInt(ARGS_QUESTION_ID);
         this.question = QuestionsRepository.getInstance().getQuestion(questionId);
 
+
     }
 
 
@@ -114,12 +120,14 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         QuestionsRepository.getInstance().saveQuestion(question);
+        //TODO save data of isChecked answers if the activity starts from intent (review)
 
 
         listener = null;
@@ -193,6 +201,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         submitButton.setOnClickListener(this);
         prevBut.setOnClickListener(this);
         nextBut.setOnClickListener(this);
+        rg = view.findViewById(R.id.radio_group);
 
 
         submitButton.setVisibility(View.INVISIBLE);
@@ -213,7 +222,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         layoutParams.gravity = Gravity.LEFT;
 
         LayoutInflater inflater1 = LayoutInflater.from(getContext());
-        final RadioGroup rg = (RadioGroup) inflater1.inflate(R.layout.answers_radiogroup_layout, innerQuestionLayout, false);
+        rg = (RadioGroup) inflater1.inflate(R.layout.answers_radiogroup_layout, innerQuestionLayout, false);
         rg.setOrientation(LinearLayout.VERTICAL);
         if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
             rg.setTextAlignment(View.TEXT_ALIGNMENT_INHERIT);
@@ -257,6 +266,9 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
 
                             for (int i = 0; i < question.getAnswers().length; i++) {
                                 if (buttonView.isChecked()) {
+
+                                    //set the answer data as checked
+
                                     if (buttonView.getText().equals(question.getAnswers()[i].getAnswer())) {
                                         boolean isCorrect = question.getAnswers()[i].getCorrect();
                                         if (isCorrect) {
@@ -273,12 +285,26 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                                         }
                                     }
                                 }
+                                question.getAnswers()[getCheckedRadioButtonIndex(rb)].setChecked(true);
+
                             }
                             question.setScore(score);
 
                         }
                     });
+
+//                    if (preferences.contains(INDEX_OF_CHECKED_BUTTON_KEY)) {
+//                        rb[preferences.getInt(INDEX_OF_CHECKED_BUTTON_KEY, -1)].setChecked(true);
+
                     rg.addView(rb[i]);
+                    if (rg != null && rb != null) {
+                        if (question.getAnswers()[i].isChecked()) {
+                            rb[i].setChecked(true);
+                        }
+                        if (rb[i].isChecked() == false) {
+                            question.getAnswers()[i].setChecked(false);
+                        }
+                    }
                 }
 
                 innerQuestionLayout.addView(rg);
@@ -312,7 +338,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                             int numOfCorrectAnswers = getCountOfcorrectAnswers(answers);
 
                             //get buttonViews array
-                            CheckBox[] buttonViews = getButtonViewsArray(rg);
+                            CheckBox[] buttonViews = getCheckBoxesViewsArray(rg);
 
                             //get count of checked answers
                             int numOfCheckedButtons = getCountOfCheckedButtons(buttonViews);
@@ -331,6 +357,10 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                             else {
                                 //test the checked buttons list
                                 for (int i = 0; i < checkedButtonsList.size(); i++) {
+
+                                    //set answers data as checked
+                                    question.getAnswers()[i].setChecked(true);
+
                                     if (question.getAnswers()[checkedButtonsList.get(i).getId()].getCorrect() == true) {
                                         score = 10; //if that's the final result of loop, checked buttons are CORRECT
                                     } else {
@@ -342,6 +372,9 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                                 if (score == 10) {
 
                                     for (int i = 0; i < unCheckedButtonsList.size(); i++) {
+
+                                        question.getAnswers()[i].setChecked(false);
+
                                         if (question.getAnswers()[unCheckedButtonsList.get(i).getId()].getCorrect() == false) {
                                             score = 10; //if thats the final result of loop, unChecked buttons are CORRECT
 
@@ -371,6 +404,12 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
 
                     //continue to set the view
                     rg.addView(checkBox);
+
+                    if (rg != null && checkBox != null) {
+                        if (question.getAnswers()[i].isChecked()) {
+                            getCheckBoxesViewsArray(rg)[i].setChecked(true);
+                        }
+                    }
                 }
                 innerQuestionLayout.addView(rg);
 
@@ -393,6 +432,13 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                 break;
         }
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+    }
+
     //interfaces
     public interface QuestionFragmentListener {
         void onQuestionSelected(Question question);
@@ -424,8 +470,9 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         return countOfCheckedButtons;
     }
 
+
     //get buttonViews array
-    public CheckBox[] getButtonViewsArray(ViewGroup viewGroup) {
+    public CheckBox[] getCheckBoxesViewsArray(ViewGroup viewGroup) {
         CheckBox[] buttonViews = new CheckBox[viewGroup.getChildCount()];
         for (int i = 0; i < question.getAnswers().length; i++) {
             buttonViews[i] = (CheckBox) viewGroup.getChildAt(i);
@@ -433,9 +480,28 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         return buttonViews;
     }
 
+    public RadioButton[] getRadioButtonViewsArray(ViewGroup viewGroup) {
+        RadioButton[] buttonViews = new RadioButton[viewGroup.getChildCount()];
+        for (int i = 0; i < question.getAnswers().length; i++) {
+            buttonViews[i] = (RadioButton) viewGroup.getChildAt(i);
+        }
+        return buttonViews;
+    }
+
+    public int getCheckedRadioButtonIndex(RadioButton[] radioButtons) {
+        int buttonIndex = -1;
+        for (int i = 0; i< question.getAnswers().length; i++) {
+            if (radioButtons[i].isChecked()) {
+                buttonIndex = i;
+                break;
+            }
+        }
+        return buttonIndex;
+    }
+
     //get checked buttons ArrayList
     public List<CheckBox> getCheckedButtonsList(ViewGroup viewGroup) {
-        List<CheckBox> checkedButtons = new ArrayList<>(getCountOfCheckedButtons(getButtonViewsArray(viewGroup)));
+        List<CheckBox> checkedButtons = new ArrayList<>(getCountOfCheckedButtons(getCheckBoxesViewsArray(viewGroup)));
         for (int i = 0; i < question.getAnswers().length; i++) {
             CheckBox cb = (CheckBox) viewGroup.getChildAt(i);
             if (cb.isChecked()) {
@@ -445,9 +511,10 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         return checkedButtons;
     }
 
+
     //get unchecked buttons ArrayList
     public List<CheckBox> getUnCheckedButtonsList(ViewGroup viewGroup) {
-        List<CheckBox> unCheckedButtons = new ArrayList<>(question.getAnswers().length - getCountOfCheckedButtons(getButtonViewsArray(viewGroup)));
+        List<CheckBox> unCheckedButtons = new ArrayList<>(question.getAnswers().length - getCountOfCheckedButtons(getCheckBoxesViewsArray(viewGroup)));
         for (int i = 0; i < question.getAnswers().length; i++) {
             CheckBox cb = (CheckBox) viewGroup.getChildAt(i);
             if (cb.isChecked() == false) {
