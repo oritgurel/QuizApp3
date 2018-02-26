@@ -14,6 +14,7 @@ public class QuestionsRepository {
 
     private final static QuestionsRepository INSTANCE = new QuestionsRepository();
 
+    //sorted Map, maintains items order
     private TreeMap<Integer, Question> questionMap;
 
     public static QuestionsRepository getInstance() {

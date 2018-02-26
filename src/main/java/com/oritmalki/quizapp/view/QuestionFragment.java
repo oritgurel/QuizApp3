@@ -2,7 +2,6 @@ package com.oritmalki.quizapp.view;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Build.VERSION;
@@ -127,7 +126,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     public void onDetach() {
         super.onDetach();
         QuestionsRepository.getInstance().saveQuestion(question);
-        //TODO save data of isChecked answers if the activity starts from intent (review)
+
 
 
         listener = null;
@@ -145,9 +144,23 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                     finalScore += question.getScore();
                 }
 
-                Intent intent = new Intent(this.getContext(), FinalScoreActivity.class);
-                intent.putExtra("Score", finalScore);
-                startActivity(intent);
+                if (getActivity().findViewById(R.id.total_score_container) != null) {
+
+                    if (MainActivity.savedInstanceState != null) {
+                        return;
+                    }
+
+                    FinalScoreFragment finalScoreFragment = FinalScoreFragment.getInstance(finalScore);
+                    getActivity().getSupportFragmentManager().beginTransaction().add(R.id.total_score_container, finalScoreFragment).setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out).show(finalScoreFragment).commit();
+
+                }
+
+
+
+//TODO make fragment visible
+//                Intent intent = new Intent(this.getContext(), FinalScoreActivity.class);
+//                intent.putExtra("Score", finalScore);
+//                startActivity(intent);
                 break;
             default:
                 mOnButtonClickListener.onButtonClicked(v);
@@ -172,6 +185,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         question.setScore(0);
         int score;
         String remark;
+        question.getAnswers()[0].setTextAnswerInput(s.toString());
 
         if (s.toString().equals("crescendo") ||
                 s.toString().equals("Crescendo")) {
@@ -405,11 +419,15 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                     //continue to set the view
                     rg.addView(checkBox);
 
-                    if (rg != null && checkBox != null) {
+                    if (rg != null && rg.getChildCount() == question.getAnswers().length) {
                         if (question.getAnswers()[i].isChecked()) {
                             getCheckBoxesViewsArray(rg)[i].setChecked(true);
                         }
+                        if (getCheckBoxesViewsArray(rg)[i].isChecked() == false) {
+                            question.getAnswers()[i].setChecked(false);
+                        }
                     }
+
                 }
                 innerQuestionLayout.addView(rg);
 
@@ -428,6 +446,9 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                 editText.addTextChangedListener(this);
 
                 rg.addView(editText);
+                if (question.getAnswers()[0].getTextAnswerInput() != null) {
+                    editText.setText(question.getAnswers()[0].getTextAnswerInput());
+                }
                 innerQuestionLayout.addView(rg);
                 break;
         }
@@ -438,6 +459,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         super.onStop();
 
     }
+
 
     //interfaces
     public interface QuestionFragmentListener {

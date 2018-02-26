@@ -33,6 +33,7 @@
             android:background="#ffecb3"
             android:layout_weight="1"
             android:textSize="24sp"
+            
             android:layout_margin="60dp"
 
             />

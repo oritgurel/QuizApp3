@@ -8,14 +8,8 @@ public class Answer {
     private String answer;
     private boolean isCorrect;
     private boolean isChecked;
+    private String textAnswerInput;
 
-    public boolean isChecked() {
-        return isChecked;
-    }
-
-    public void setChecked(boolean checked) {
-        isChecked = checked;
-    }
 
     public static final int ONE_CORRECT_ANSWER = 1;
     public static final int MULTIPLE_ANSWERS = 2;
@@ -42,4 +36,19 @@ public class Answer {
         isCorrect = correct;
     }
 
+    public boolean isChecked() {
+        return isChecked;
+    }
+
+    public void setChecked(boolean checked) {
+        isChecked = checked;
+    }
+
+    public String getTextAnswerInput() {
+        return textAnswerInput;
+    }
+
+    public void setTextAnswerInput(String textAnswerInput) {
+        this.textAnswerInput = textAnswerInput;
+    }
 }

@@ -7,11 +7,20 @@
     android:layout_height="match_parent"
     tools:context="com.oritmalki.quizapp.view.MainActivity">
 
+
     <android.support.v4.view.ViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/back1"/>
+
+    <FrameLayout
+        android:id="@+id/total_score_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible">
+
+    </FrameLayout>
 
     <!--<Toolbar-->
         <!--android:layout_width="match_parent"-->
