@@ -1,0 +1,4 @@
+#Wed Feb 28 08:39:23 IST 2018
+base.0=/Users/Orit/AndroidStudioProjects/QuizApp/app/build/intermediates/transforms/dexMerger/debug/0
+path.0=classes.dex
+renamed.0=classes.dex
