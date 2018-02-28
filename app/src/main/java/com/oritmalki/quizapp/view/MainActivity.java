@@ -124,12 +124,14 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
 
                 if (QuestionsRepository.getInstance().getQuestion(i).getAnswers()[j].isChecked()) {
                     ViewGroup innerQuestionLayout = findViewById(R.id.inner_question_layout);
-                    if (innerQuestionLayout.getChildAt(1) != null) {
-                        RadioGroup radioGroup = (RadioGroup) innerQuestionLayout.getChildAt(1);
+                    if (innerQuestionLayout.getChildAt(3) != null) {
+                        RadioGroup radioGroup = (RadioGroup) innerQuestionLayout.getChildAt(3);
 
                         RadioButton radioButton = (RadioButton) radioGroup.getChildAt(j);
+                        if (radioButton != null) {
                         radioButton.setChecked(true);
                         outState.putBoolean("isButtonChecked", ((RadioButton) radioGroup.getChildAt(j)).isChecked());
+                    }
                     }
                 }
             }
@@ -142,8 +144,8 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
         for (int i = 0; i < questionList.size(); i++) {
             for (int j = 0; j < QuestionsRepository.getInstance().getQuestion(i).getAnswers().length; j++) {
                 ViewGroup innerQuestionLayout = findViewById(R.id.inner_question_layout);
-                if (innerQuestionLayout.getChildAt(1) != null) {
-                    RadioGroup radioGroup = (RadioGroup) innerQuestionLayout.getChildAt(1);
+                if (innerQuestionLayout.getChildAt(3) != null) {
+                    RadioGroup radioGroup = (RadioGroup) innerQuestionLayout.getChildAt(3);
 
                     RadioButton radioButton = (RadioButton) radioGroup.getChildAt(j);
                     savedInstanceState.getBoolean("isButtonChecked");
