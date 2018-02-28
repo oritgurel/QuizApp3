@@ -103,6 +103,7 @@ public class FinalScoreFragment extends Fragment implements View.OnClickListener
                  break;
             case R.id.try_again_butt:
 
+                QuestionFragment.isInReview = false;
                 Intent intent = new Intent(getContext(), MainActivity.class);
                 startActivity(intent);
                 break;

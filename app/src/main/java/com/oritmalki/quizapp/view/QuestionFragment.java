@@ -201,7 +201,10 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
             remark = goodRemarks[0];
             toast = Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT);
             if (isInReview) {
+                toast = Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT);
                 toast.cancel();
+                correct.setVisibility(View.VISIBLE);
+                inCorrect.setVisibility(View.GONE);
             } else toast.show();
 
         }
@@ -209,7 +212,10 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
             Collections.shuffle(Arrays.asList(badRemarks));
             remark = badRemarks[0];
             if (isInReview) {
+                toast = Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT);
                 toast.cancel();
+                correct.setVisibility(View.GONE);
+                inCorrect.setVisibility(View.VISIBLE);
             } else toast.show();
         }
     }
@@ -228,6 +234,9 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         prevBut.setOnClickListener(this);
         nextBut.setOnClickListener(this);
         rg = view.findViewById(R.id.radio_group);
+        correct = view.findViewById(R.id.correct_image);
+        inCorrect = view.findViewById(R.id.incorrect_image);
+
 
 
         submitButton.setVisibility(View.INVISIBLE);
@@ -305,6 +314,8 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                                             toast = Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT);
                                             if (isInReview) {
                                                 toast.cancel();
+                                                correct.setVisibility(View.VISIBLE);
+                                                inCorrect.setVisibility(View.GONE);
                                             } else toast.show();
 
                                         } else if (isCorrect == false) {
@@ -313,6 +324,8 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                                             toast = Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT);
                                             if (isInReview) {
                                                 toast.cancel();
+                                                inCorrect.setVisibility(View.VISIBLE);
+                                                correct.setVisibility(View.GONE);
                                             } else toast.show();
 
                                         }
@@ -427,6 +440,8 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                                     toast = Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT);
                                     if (isInReview) {
                                         toast.cancel();
+                                        correct.setVisibility(View.VISIBLE);
+                                        inCorrect.setVisibility(View.GONE);
                                     } else toast.show();
                                 }
                                 else if (score == 0) {
@@ -435,6 +450,8 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                                     toast = Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT);
                                     if (isInReview) {
                                         toast.cancel();
+                                        correct.setVisibility(View.GONE);
+                                        inCorrect.setVisibility(View.VISIBLE);
                                     } else toast.show();
                             }
                         }

@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
         listOfQuizes.add(questionsList);
         savedInstanceState = this.savedInstanceState;
 
-        //TODO create an fragment which prompts the user to create a questions list or select from existing questionLists (if available). This should be in the welcome activity
+        //create an fragment which prompts the user to create a questions list or select from existing questionLists (if available). This should be in the welcome activity
         //TODO then, pass the title of the list selected (or "quiz") to the welcome activity.
         //TODO if user chooses to create a list of question ->
         //TODO create an activity with a questionFragment which prompts the user to insert the questions and the answers, like a form, triggered by a method "createQuestionList"
