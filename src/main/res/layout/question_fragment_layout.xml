@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:textDirection="ltr"
+
     >
 
 <LinearLayout
@@ -47,21 +48,19 @@
 
     <Button
         android:id="@+id/next_but"
+        android:theme="@style/AppTheme.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#ccc5af"
         android:text="Next"
-        android:textSize="18sp"
-        android:layout_marginBottom="42dp"
         android:layout_marginHorizontal="16dp"
         android:layout_toRightOf="@id/submit_but"
         />
 
     <Button
         android:id="@+id/submit_but"
+        android:theme="@style/AppTheme.ButtonHighlighted"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#FFF8E1"
         android:text="Submit"
         android:textSize="18sp"
         android:layout_marginBottom="42dp"
@@ -70,18 +69,13 @@
         />
 
     <Button
-            android:id="@+id/prev_but"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#ccc5af"
-            android:text="Prev"
-            android:singleLine="true"
-            android:padding="5dp"
-            android:textSize="18sp"
-            android:layout_marginBottom="42dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_toLeftOf="@id/submit_but"
-            />
+        android:id="@+id/prev_but"
+        android:text="Prev"
+        android:theme="@style/AppTheme.Button"
+        android:layout_marginHorizontal="16dp"
+        android:layout_toLeftOf="@id/submit_but"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
     </RelativeLayout>
 
 </LinearLayout>

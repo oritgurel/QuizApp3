@@ -95,6 +95,7 @@ public class FinalScoreFragment extends Fragment implements View.OnClickListener
         switch (v.getId()) {
             case R.id.review_answers:
                 getActivity().getSupportFragmentManager().beginTransaction().remove(this).setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out).commit();
+                QuestionFragment.isInReview = true;
                 viewPager.setCurrentItem(0, true);
                 break;
             case R.id.quit_but:

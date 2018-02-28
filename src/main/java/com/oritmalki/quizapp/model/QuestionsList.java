@@ -12,8 +12,7 @@ public class QuestionsList {
     private int questionListId;
     private String questionListName;
 
-    public QuestionsList(List<Question> questions, int questionListId) {
-        this.questions = questions;
+    public QuestionsList(int questionListId) {
         this.questionListId = questionListId;
     }
 

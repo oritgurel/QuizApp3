@@ -28,8 +28,10 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
     private Button nextButton;
     private FrameLayout frameLayout;
     private GenerateData generateData;
-    List<Question> questionList;
+    private List<Question> questionList;
     static Bundle savedInstanceState;
+    private List<QuestionsList> listOfQuizes = new ArrayList<>();
+    public static int questionListId = 0;
 
 
     @Override
@@ -38,7 +40,10 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
         setContentView(R.layout.activity_main);
         viewPager = findViewById(R.id.view_pager);
         generateData = new GenerateData();
-        QuestionsList demoQuestionList = (QuestionsList) generateData.getQuestionsData();
+        List<Question> demoQuestionList = generateData.getQuestionsData();
+        QuestionsList questionsList = new QuestionsList(questionListId++);
+        questionsList.setQuestions(demoQuestionList);
+        listOfQuizes.add(questionsList);
         savedInstanceState = this.savedInstanceState;
 
         //TODO create an fragment which prompts the user to create a questions list or select from existing questionLists (if available). This should be in the welcome activity
@@ -46,8 +51,11 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
         //TODO if user chooses to create a list of question ->
         //TODO create an activity with a questionFragment which prompts the user to insert the questions and the answers, like a form, triggered by a method "createQuestionList"
         //TODO to this form, add a "select type of question" at the top (add another viewGroup on top in editFragment and make it invisible when the question type is selected
+
         //Here is where the data is inserted.
-        questionList = generateData.getQuestionsData();
+
+        //this is for now, //TODO create a listFragment of quizes with adapter and pull the data from there
+        questionList = questionsList.getQuestions();
 
         for (Question question : questionList) {
             QuestionsRepository.getInstance().saveQuestion(question);

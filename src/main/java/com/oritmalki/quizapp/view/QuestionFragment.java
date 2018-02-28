@@ -21,6 +21,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -43,6 +44,8 @@ import java.util.List;
  */
 
 public class QuestionFragment extends Fragment implements View.OnClickListener, TextWatcher {
+
+    //TODO add vectorDrawable animations for correct and incorrect imageviews for review
 
     //declare layout views...
     private static final String ARGS_QUESTION_ID = "args_question_id";
@@ -67,6 +70,11 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     public static final String INDEX_OF_CHECKED_BUTTON_KEY = "IndexOfCheckedButton";
     public static int INDEX_OF_CHECKED_BUTTON = -1;
     public RadioGroup rg;
+    public static boolean isInReview = false;
+    Toast toast;
+    private ImageView correct;
+    private ImageView inCorrect;
+
 
 
     private List<Question> questions = QuestionsRepository.getInstance().getQuestions();
@@ -99,8 +107,6 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         super.onCreate(savedInstanceState);
         int questionId = getArguments().getInt(ARGS_QUESTION_ID);
         this.question = QuestionsRepository.getInstance().getQuestion(questionId);
-
-
     }
 
 
@@ -184,7 +190,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     public void afterTextChanged(Editable s) {
         question.setScore(0);
         int score;
-        String remark;
+
         question.getAnswers()[0].setTextAnswerInput(s.toString());
 
         if (s.toString().equals("crescendo") ||
@@ -193,12 +199,18 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
             question.setScore(score);
             Collections.shuffle(Arrays.asList(goodRemarks));
             remark = goodRemarks[0];
-            Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+            toast = Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT);
+            if (isInReview) {
+                toast.cancel();
+            } else toast.show();
+
         }
         else if (s.toString().length() > 10) {
             Collections.shuffle(Arrays.asList(badRemarks));
             remark = badRemarks[0];
-            Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+            if (isInReview) {
+                toast.cancel();
+            } else toast.show();
         }
     }
 
@@ -288,13 +300,20 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                                         if (isCorrect) {
                                             score += 10;
                                             Collections.shuffle(Arrays.asList(goodRemarks));
+
                                             remark = goodRemarks[0];
-                                            Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+                                            toast = Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT);
+                                            if (isInReview) {
+                                                toast.cancel();
+                                            } else toast.show();
 
                                         } else if (isCorrect == false) {
                                             Collections.shuffle(Arrays.asList(badRemarks));
                                             remark = badRemarks[0];
-                                            Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+                                            toast = Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT);
+                                            if (isInReview) {
+                                                toast.cancel();
+                                            } else toast.show();
 
                                         }
                                     }
@@ -405,12 +424,18 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
                                 if (score == 10) {
                                     Collections.shuffle(Arrays.asList(goodRemarks));
                                     remark = goodRemarks[0];
-                                    Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+                                    toast = Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT);
+                                    if (isInReview) {
+                                        toast.cancel();
+                                    } else toast.show();
                                 }
                                 else if (score == 0) {
                                     Collections.shuffle(Arrays.asList(badRemarks));
                                     remark = badRemarks[0];
-                                    Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT).show();
+                                    toast = Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT);
+                                    if (isInReview) {
+                                        toast.cancel();
+                                    } else toast.show();
                             }
                         }
                         }
