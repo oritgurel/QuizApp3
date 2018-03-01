@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="50sp"
-        android:text="Welcom to QuizApp!"
+        android:text="Welcome to QuizApp!"
         android:padding="24dp"
         android:layout_alignParentTop="true"/>
 

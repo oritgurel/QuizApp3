@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.oritmalki.quizapp.R;
 import com.oritmalki.quizapp.view.QuestionFragment.OnButtonClickListener;
 
+import static com.oritmalki.quizapp.view.MainActivity.QUESTIONS_LIST_KEY;
 import static com.oritmalki.quizapp.view.MainActivity.viewPager;
 
 /**
@@ -43,6 +44,8 @@ public class FinalScoreFragment extends Fragment implements View.OnClickListener
         return finalScoreFragment;
 
     }
+
+    //TODO add navigate back to quiz or select/create new quiz
 
     @Override
     public void onAttach(Context context) {
@@ -105,6 +108,7 @@ public class FinalScoreFragment extends Fragment implements View.OnClickListener
 
                 QuestionFragment.isInReview = false;
                 Intent intent = new Intent(getContext(), MainActivity.class);
+                intent.putExtra(QUESTIONS_LIST_KEY, WelcomeActivity.selectedQuiz);
                 startActivity(intent);
                 break;
         }

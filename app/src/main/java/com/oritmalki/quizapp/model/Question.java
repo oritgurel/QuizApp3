@@ -1,10 +1,12 @@
 package com.oritmalki.quizapp.model;
 
+import java.io.Serializable;
+
 /**
  * Created by Orit on 31.1.2018.
  */
 
-public class Question {
+public class Question implements Serializable {
 
     String question;
     Answer[] answers;

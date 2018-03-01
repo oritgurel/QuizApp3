@@ -19,6 +19,7 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/start_quiz_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:text="Music Quiz"
@@ -51,6 +52,29 @@
     <FrameLayout
         android:id="@+id/welcome_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:visibility="visible"/>
+
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/list_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        android:layout_margin="16dp"
+        android:padding="16dp"
+        android:background="@color/welcomeBkg">
+
+        <ListView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@color/welcomeBkg"
+            android:background="@color/welcomeBkg">
+
+        </ListView>
+    </RelativeLayout>
+
 
 </RelativeLayout>

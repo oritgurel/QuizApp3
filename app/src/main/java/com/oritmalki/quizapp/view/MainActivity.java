@@ -14,11 +14,13 @@ import com.oritmalki.quizapp.Data.GenerateData;
 import com.oritmalki.quizapp.Data.QuestionsRepository;
 import com.oritmalki.quizapp.R;
 import com.oritmalki.quizapp.model.Question;
-import com.oritmalki.quizapp.model.QuestionsList;
+import com.oritmalki.quizapp.model.Quiz;
 import com.oritmalki.quizapp.view.QuestionFragment.OnButtonClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.oritmalki.quizapp.view.QuestionFragment.toast;
 
 public class MainActivity extends AppCompatActivity implements OnButtonClickListener {
 
@@ -30,8 +32,9 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
     private GenerateData generateData;
     private List<Question> questionList;
     static Bundle savedInstanceState;
-    private List<QuestionsList> listOfQuizes = new ArrayList<>();
+    private List<Quiz> listOfQuizes = new ArrayList<>();
     public static int questionListId = 0;
+    public static final String QUESTIONS_LIST_KEY = "Questions_List";
 
 
     @Override
@@ -39,44 +42,48 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         viewPager = findViewById(R.id.view_pager);
-        generateData = new GenerateData();
-        List<Question> demoQuestionList = generateData.getQuestionsData();
-        QuestionsList questionsList = new QuestionsList(questionListId++);
-        questionsList.setQuestions(demoQuestionList);
-        listOfQuizes.add(questionsList);
+
+
+
         savedInstanceState = this.savedInstanceState;
 
         //create an fragment which prompts the user to create a questions list or select from existing questionLists (if available). This should be in the welcome activity
-        //TODO then, pass the title of the list selected (or "quiz") to the welcome activity.
         //TODO if user chooses to create a list of question ->
         //TODO create an activity with a questionFragment which prompts the user to insert the questions and the answers, like a form, triggered by a method "createQuestionList"
         //TODO to this form, add a "select type of question" at the top (add another viewGroup on top in editFragment and make it invisible when the question type is selected
 
         //Here is where the data is inserted.
 
-        //this is for now, //TODO create a listFragment of quizes with adapter and pull the data from there
-        questionList = questionsList.getQuestions();
+        if (getIntent().getExtras() != null) {
+            Quiz selectedQuiz = (Quiz) getIntent().getExtras().getSerializable(QUESTIONS_LIST_KEY);
 
-        for (Question question : questionList) {
-            QuestionsRepository.getInstance().saveQuestion(question);
-        }
-
-        initViewPager();
-        frameLayout = findViewById(R.id.total_score_container);
-
-        if (findViewById(R.id.total_score_container) != null) {
-
-
-            // However, if we're being restored from a previous state,
-            // then we don't need to do anything and should return or else
-            // we could end up with overlapping fragments.
-            if (savedInstanceState != null) {
-                return;
+            if (selectedQuiz != null) {
+                questionList = selectedQuiz.getQuestions();
             }
+
+            if (questionList != null) {
+                for (Question question : questionList) {
+                    QuestionsRepository.getInstance().saveQuestion(question);
+                }
+
+
+                initViewPager();
+                frameLayout = findViewById(R.id.total_score_container);
+
+                if (findViewById(R.id.total_score_container) != null) {
+
+
+                    // However, if we're being restored from a previous state,
+                    // then we don't need to do anything and should return or else
+                    // we could end up with overlapping fragments.
+                    if (savedInstanceState != null) {
+                        return;
+                    }
 
 //            FinalScoreFragment finalScoreFragment = new FinalScoreFragment();
 //            getSupportFragmentManager().beginTransaction().add(R.id.total_score_fragment, finalScoreFragment).commit();
-
+                }
+            }
         }
     }
 
@@ -95,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
     }
 
 
+
     @Override
     public void onButtonClicked(View view) {
 
@@ -104,10 +112,16 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
                 if (currPos != viewPager.getAdapter().getCount()) {
                     viewPager.setCurrentItem(currPos + 1, true);
                 }
+                if (toast != null) {
+                    toast.cancel();
+                }
                 break;
             case R.id.prev_but:
                 if (currPos != 0) {
                     viewPager.setCurrentItem(currPos - 1, true);
+                    if (toast != null) {
+                        toast.cancel();
+                    }
                 }
                 break;
             case R.id.review_answers:
@@ -129,8 +143,9 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
 
                         RadioButton radioButton = (RadioButton) radioGroup.getChildAt(j);
                         if (radioButton != null) {
-                        radioButton.setChecked(true);
+                        toast.cancel();
                         outState.putBoolean("isButtonChecked", ((RadioButton) radioGroup.getChildAt(j)).isChecked());
+                        outState.putBoolean("isInReview", QuestionFragment.isInReview);
                     }
                     }
                 }
@@ -141,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        QuestionFragment.isInReview = savedInstanceState.getBoolean("isInReview");
         for (int i = 0; i < questionList.size(); i++) {
             for (int j = 0; j < QuestionsRepository.getInstance().getQuestion(i).getAnswers().length; j++) {
                 ViewGroup innerQuestionLayout = findViewById(R.id.inner_question_layout);
@@ -149,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
 
                     RadioButton radioButton = (RadioButton) radioGroup.getChildAt(j);
                     savedInstanceState.getBoolean("isButtonChecked");
+
                 }
             }
         }

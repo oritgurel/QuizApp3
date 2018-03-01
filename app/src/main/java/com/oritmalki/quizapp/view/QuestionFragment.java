@@ -71,7 +71,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     public static int INDEX_OF_CHECKED_BUTTON = -1;
     public RadioGroup rg;
     public static boolean isInReview = false;
-    Toast toast;
+    public static Toast toast;
     private ImageView correct;
     private ImageView inCorrect;
 
@@ -190,6 +190,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     public void afterTextChanged(Editable s) {
         question.setScore(0);
         int score;
+        boolean isCorrect = question.getAnswers()[0].getCorrect();
 
         question.getAnswers()[0].setTextAnswerInput(s.toString());
 
@@ -201,7 +202,6 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
             remark = goodRemarks[0];
             toast = Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT);
             if (isInReview) {
-                toast = Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT);
                 toast.cancel();
                 correct.setVisibility(View.VISIBLE);
                 inCorrect.setVisibility(View.GONE);
@@ -212,11 +212,11 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
             Collections.shuffle(Arrays.asList(badRemarks));
             remark = badRemarks[0];
             if (isInReview) {
-                toast = Toast.makeText(getContext(), remark, Toast.LENGTH_SHORT);
                 toast.cancel();
                 correct.setVisibility(View.GONE);
                 inCorrect.setVisibility(View.VISIBLE);
-            } else toast.show();
+//            } else toast.show();
+            }
         }
     }
 

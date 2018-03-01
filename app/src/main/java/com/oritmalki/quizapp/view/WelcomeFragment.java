@@ -1,12 +1,11 @@
 package com.oritmalki.quizapp.view;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 
@@ -20,13 +19,23 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
 
     private Button selectQuiz;
     private Button createQuiz;
-    private OnClickListener listener;
+    private WelcomFragmentCallback mCallback;
 
     public static WelcomeFragment newInstance() {
         WelcomeFragment welcomeFragment = new WelcomeFragment();
         return welcomeFragment;
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            mCallback = (WelcomFragmentCallback) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement WelcomFragmentCallback");
+        }
+    }
 
     @Nullable
     @Override
@@ -44,20 +53,8 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener {
     }
 
 
-
     @Override
     public void onClick(View v) {
-
-        switch (v.getId()) {
-            case R.id.create_quiz:
-                Intent intent = new Intent(getContext(), MainActivity.class);
-                startActivity(intent);
-                break;
-            case (R.id.select_quiz):
-                //attach listFragment
-                break;
-        }
-
+        mCallback.onClick(v);
     }
-
 }
