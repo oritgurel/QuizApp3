@@ -14,15 +14,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/inner_question_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
-
-
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -31,7 +22,7 @@
 
         <EditText
             android:id="@+id/question_et"
-            android:layout_width="280dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:layoutDirection="ltr"
             android:layout_alignParentLeft="true"
@@ -50,11 +41,13 @@
             <Button
                 android:id="@+id/save_et"
                 android:text="save"
+                android:layout_marginRight="16dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_toRightOf="@+id/question_et"/>
         </LinearLayout>
+
 
         <TextView
             android:id="@+id/select_question_type_prompt"
@@ -83,6 +76,13 @@
                 android:spinnerMode="dropdown" />
 
         </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/inner_create_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
 </LinearLayout>
 

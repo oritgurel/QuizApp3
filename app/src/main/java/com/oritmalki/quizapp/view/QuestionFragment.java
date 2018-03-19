@@ -45,8 +45,6 @@ import java.util.List;
 
 public class QuestionFragment extends Fragment implements View.OnClickListener, TextWatcher {
 
-    //TODO add vectorDrawable animations for correct and incorrect imageviews for review
-
     //declare layout views...
     private static final String ARGS_QUESTION_ID = "args_question_id";
     private static final String IS_CHECKBUTTON_CHECKED = "is_cButton_checked";

@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
 
         List<CreateQuizFragment> createQuizFragments = new ArrayList<>();
 
-        createQuizFragments.add(CreateQuizFragment.newInstance());
+        createQuizFragments.add(CreateQuizFragment.newInstance(1));
 
 
         QuestionsPagerAdapter adapter = new QuestionsPagerAdapter(getSupportFragmentManager(), createQuizFragments);

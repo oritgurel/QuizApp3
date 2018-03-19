@@ -34,13 +34,14 @@ import com.oritmalki.quizapp.model.Answer;
 import com.oritmalki.quizapp.model.Question;
 import com.oritmalki.quizapp.view.QuestionFragment.QuestionFragmentListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Orit on 1.2.2018.
  */
 
 public class CreateQuizFragment extends Fragment implements View.OnClickListener, OnItemSelectedListener {
-
-    //TODO add vectorDrawable animations for correct and incorrect imageviews for review
 
     //declare layout views...
     private static final String ARGS_QUESTION_ID = "args_question_id";
@@ -50,6 +51,7 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     private ViewGroup innerQuestionLayout;
     private Button saveQuestion;
     private EditText questionET;
+    private Button saveET;
     private Button nextBut;
     private Button prevBut;
     SharedPreferences preferences;
@@ -62,11 +64,16 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     private Spinner typeSpinner;
     int questionType;
 
+    List<Question> questionList = new ArrayList<>();
 
 
 
-    public static CreateQuizFragment newInstance() {
+
+    public static CreateQuizFragment newInstance(int questionId) {
         CreateQuizFragment createQuizFragment = new CreateQuizFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt(ARGS_QUESTION_ID, questionId);
+        createQuizFragment.setArguments(bundle);
         return createQuizFragment;
     }
 
@@ -119,6 +126,14 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
 
         switch (v.getId()) {
 
+            case R.id.save_question:
+                if (questionET.getText() != null && questionET.getText().length() > 0) {
+
+//                    questionList.add(new Question(getArguments().getInt(ARGS_QUESTION_ID, questionET.getText().toString(),
+//                            getQuestionType(typeSpinner.toString(),))));
+                }
+                break;
+
             case R.id.submit_but:
                 //save question
 
@@ -142,6 +157,8 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         nextBut = view.findViewById(R.id.next_but);
         questionET = view.findViewById(R.id.question_et);
         innerQuestionLayout = view.findViewById(R.id.inner_question_layout);
+        saveET = view.findViewById(R.id.save_et);
+        saveET.setOnClickListener(this);
         saveQuestion = view.findViewById(R.id.save_question);
         saveQuestion.setOnClickListener(this);
         prevBut.setOnClickListener(this);
@@ -290,5 +307,22 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+//convert spinner selected type into int
+
+    public int getQuestionType(String selectedItem) {
+        int type = -1;
+        switch (selectedItem) {
+            case "One correct Answer":
+                type = Answer.ONE_CORRECT_ANSWER;
+                break;
+            case "Multiple correct answers":
+                type = Answer.MULTIPLE_ANSWERS;
+                break;
+            case "Text answer":
+                type = Answer.TEXT_ANSWER;
+                break;
+        }
+        return type;
     }
 }
