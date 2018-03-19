@@ -13,9 +13,9 @@ import java.util.List;
 
 public class QuestionsPagerAdapter extends FragmentStatePagerAdapter {
 
-    private List<QuestionFragment> fragments;
+    private List<? extends Fragment> fragments;
 
-    public QuestionsPagerAdapter(FragmentManager fm, List<QuestionFragment> fragments) {
+    public QuestionsPagerAdapter(FragmentManager fm, List<? extends Fragment> fragments) {
         super(fm);
         this.fragments = fragments;
     }
@@ -34,7 +34,7 @@ public class QuestionsPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
 
-        QuestionFragment createdFragment = (QuestionFragment) super.instantiateItem(container, position);
+        Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
 
 
         return super.instantiateItem(container, position);

@@ -15,8 +15,6 @@ import com.oritmalki.quizapp.Data.QuestionsRepository;
 import com.oritmalki.quizapp.R;
 import com.oritmalki.quizapp.model.Question;
 import com.oritmalki.quizapp.model.Quiz;
-import com.oritmalki.quizapp.view.QuestionFragment.OnButtonClickListener;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
     private List<Quiz> listOfQuizes = new ArrayList<>();
     public static int questionListId = 0;
     public static final String QUESTIONS_LIST_KEY = "Questions_List";
+    public static final String TO_CREATE_QUIZ_FRAGMENT = "to_create_quiz_fragment";
+
 
 
     @Override
@@ -55,49 +55,72 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
         //Here is where the data is inserted.
 
         if (getIntent().getExtras() != null) {
-            Quiz selectedQuiz = (Quiz) getIntent().getExtras().getSerializable(QUESTIONS_LIST_KEY);
 
-            if (selectedQuiz != null) {
-                questionList = selectedQuiz.getQuestions();
-            }
+            if (getIntent().getExtras().containsKey(TO_CREATE_QUIZ_FRAGMENT)) {
+                boolean toCreateQuiz = (boolean) getIntent().getExtras().getBoolean(TO_CREATE_QUIZ_FRAGMENT);
+                if (toCreateQuiz) {
 
-            if (questionList != null) {
-                for (Question question : questionList) {
-                    QuestionsRepository.getInstance().saveQuestion(question);
+                    //attach creation fragment to pagerAdapter
+                    initViewPagerWithCreateQuiz();
                 }
 
+            } else {
+                Quiz selectedQuiz = (Quiz) getIntent().getExtras().getSerializable(QUESTIONS_LIST_KEY);
 
-                initViewPager();
-                frameLayout = findViewById(R.id.total_score_container);
+                if (selectedQuiz != null) {
+                    questionList = selectedQuiz.getQuestions();
+                }
 
-                if (findViewById(R.id.total_score_container) != null) {
-
-
-                    // However, if we're being restored from a previous state,
-                    // then we don't need to do anything and should return or else
-                    // we could end up with overlapping fragments.
-                    if (savedInstanceState != null) {
-                        return;
+                if (questionList != null) {
+                    for (Question question : questionList) {
+                        QuestionsRepository.getInstance().saveQuestion(question);
                     }
 
+                    //attach question fragment to pagerAdapter
+                    initViewPagerWithQuizQuestions();
+
+                    frameLayout = findViewById(R.id.total_score_container);
+
+                    if (findViewById(R.id.total_score_container) != null) {
+
+
+                        // However, if we're being restored from a previous state,
+                        // then we don't need to do anything and should return or else
+                        // we could end up with overlapping fragments.
+                        if (savedInstanceState != null) {
+                            return;
+                        }
+
 //            FinalScoreFragment finalScoreFragment = new FinalScoreFragment();
-//            getSupportFragmentManager().beginTransaction().add(R.id.total_score_fragment, finalScoreFragment).commit();
+//            getSupportFragmentManager().beginTransaction().add(R.id.final_score_fragment, finalScoreFragment).commit();
+                    }
                 }
             }
         }
     }
 
 
-    public void initViewPager() {
+    public void initViewPagerWithQuizQuestions() {
 
         List<Question> questions = QuestionsRepository.getInstance().getQuestions();
-        List<QuestionFragment> fragments = new ArrayList<>();
+        List<QuestionFragment> questionFragments = new ArrayList<>();
         for (Question question : questions) {
-            fragments.add(QuestionFragment.newInstance(question.getId()));
+            questionFragments.add(QuestionFragment.newInstance(question.getId()));
 
         }
 
-        QuestionsPagerAdapter adapter = new QuestionsPagerAdapter(getSupportFragmentManager(), fragments);
+        QuestionsPagerAdapter adapter = new QuestionsPagerAdapter(getSupportFragmentManager(), questionFragments);
+        viewPager.setAdapter(adapter);
+    }
+
+    public void initViewPagerWithCreateQuiz() {
+
+        List<CreateQuizFragment> createQuizFragments = new ArrayList<>();
+
+        createQuizFragments.add(CreateQuizFragment.newInstance());
+
+
+        QuestionsPagerAdapter adapter = new QuestionsPagerAdapter(getSupportFragmentManager(), createQuizFragments);
         viewPager.setAdapter(adapter);
     }
 

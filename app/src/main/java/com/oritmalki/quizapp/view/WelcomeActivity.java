@@ -31,6 +31,7 @@ public class WelcomeActivity extends AppCompatActivity implements WelcomFragment
     public static Quiz selectedQuiz;
     TextView startQuizTv;
     public static final String QUESTIONS_LIST_KEY = "Questions_List";
+    public static final String TO_CREATE_QUIZ_FRAGMENT = "to_create_quiz_fragment";
 
     //TODO navigation back from start quiz screen
 
@@ -74,13 +75,18 @@ public class WelcomeActivity extends AppCompatActivity implements WelcomFragment
 
         if (!(list_content.getVisibility() == View.VISIBLE) && !(welcome_container.getVisibility() == View.VISIBLE)) {
             list_content.setVisibility(View.VISIBLE);
-            welcome_container.setVisibility(View.INVISIBLE);
+            welcome_container.setVisibility(View.GONE);
             getSupportFragmentManager().beginTransaction().replace(R.id.list_content, new QuizListSelectionFragment()).commit();
-        } else if (list_content.getVisibility() == View.VISIBLE && (!(welcome_container.getVisibility() == View.VISIBLE)
-                || ((list_content).getVisibility() == View.VISIBLE) && (welcome_container.getVisibility() == View.VISIBLE))) {
+        } else if (list_content.getVisibility() == View.VISIBLE && (!(welcome_container.getVisibility() == View.VISIBLE)))
+                 {
 
+            list_content.setVisibility(View.GONE);
             welcome_container.setVisibility(View.VISIBLE);
-            list_content.setVisibility(View.INVISIBLE);
+            getSupportFragmentManager().beginTransaction().replace(R.id.welcome_container, new WelcomeFragment()).commit();
+
+        } else if (list_content.getVisibility() == View.VISIBLE && welcome_container.getVisibility() == View.GONE) {
+           getSupportFragmentManager().beginTransaction().replace(R.id.welcome_container, new WelcomeFragment()).commit();
+
 
         } else {
 
@@ -96,6 +102,7 @@ public class WelcomeActivity extends AppCompatActivity implements WelcomFragment
         switch (v.getId()) {
             case R.id.create_quiz:
                 Intent intent = new Intent(this, MainActivity.class);
+                intent.putExtra(TO_CREATE_QUIZ_FRAGMENT, true);
                 startActivity(intent);
                 break;
             case (R.id.select_quiz):
@@ -103,15 +110,13 @@ public class WelcomeActivity extends AppCompatActivity implements WelcomFragment
                 FragmentManager fm = getSupportFragmentManager();
 
                 QuizListSelectionFragment selectionFragment = (QuizListSelectionFragment) fm.findFragmentByTag("QuizListSelectionFragment");
-                if (selectionFragment == null) {
+//                if (selectionFragment == null) {
                     selectionFragment = new QuizListSelectionFragment();
                     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                    transaction.add(R.id.list_content, selectionFragment, "QuizListSelectionFragment");
-                    transaction.show(selectionFragment).commit();
-                    transaction.addToBackStack(null);
+                    welcome_container.setVisibility(View.GONE);
                     list_content.setVisibility(View.VISIBLE);
+                    transaction.replace(R.id.list_content, selectionFragment, "QuizListSelectionFragment").show(selectionFragment).commit();
 
-                }
                 break;
         }
     }
@@ -121,7 +126,7 @@ public class WelcomeActivity extends AppCompatActivity implements WelcomFragment
     public void onAdapterClick(Quiz quiz) {
         this.selectedQuiz = quiz;
         startQuizTv.setText(quiz.getQuizName());
-        welcome_container.setVisibility(View.INVISIBLE);
-        list_content.setVisibility(View.INVISIBLE);
+        welcome_container.setVisibility(View.GONE);
+        list_content.setVisibility(View.GONE);
     }
 }

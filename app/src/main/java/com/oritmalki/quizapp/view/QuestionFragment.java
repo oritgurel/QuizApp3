@@ -90,9 +90,6 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-//        if (context instanceof QuestionFragmentListener) {
-//            listener = (QuestionFragmentListener) context;
-//        }
 
         try {
             mOnButtonClickListener = (OnButtonClickListener) context;
@@ -236,6 +233,8 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         rg = view.findViewById(R.id.radio_group);
         correct = view.findViewById(R.id.correct_image);
         inCorrect = view.findViewById(R.id.incorrect_image);
+
+        MainActivity.viewPager.setBackground(getResources().getDrawable(R.drawable.back1));
 
 
 
@@ -496,21 +495,12 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
         }
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-
-    }
-
 
     //interfaces
     public interface QuestionFragmentListener {
         void onQuestionSelected(Question question);
     }
 
-    public interface OnButtonClickListener {
-        void onButtonClicked(View view);
-    }
 
     //utility methods
 

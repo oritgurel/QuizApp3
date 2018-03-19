@@ -2,4 +2,10 @@
     <string name="app_name">QuizApp</string>
     <string name="select_quiz">Select Quiz</string>
     <string name="create_quiz">Create quiz</string>
+
+    <string-array name="question_types_array">
+        <item>One correct Answer</item>
+        <item>Multiple correct answers</item>
+        <item>Text answer</item>
+    </string-array>
 </resources>

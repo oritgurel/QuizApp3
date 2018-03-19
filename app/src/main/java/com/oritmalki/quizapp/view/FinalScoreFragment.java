@@ -16,7 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.oritmalki.quizapp.R;
-import com.oritmalki.quizapp.view.QuestionFragment.OnButtonClickListener;
 
 import static com.oritmalki.quizapp.view.MainActivity.QUESTIONS_LIST_KEY;
 import static com.oritmalki.quizapp.view.MainActivity.viewPager;
@@ -32,6 +31,7 @@ public class FinalScoreFragment extends Fragment implements View.OnClickListener
     Button tryAgainButt;
     Button reviewBut;
     Button quitBut;
+    Button home;
     int finalScore;
     final static String ARGS_FINAL_SCORE = "args_final_score";
 
@@ -71,25 +71,25 @@ public class FinalScoreFragment extends Fragment implements View.OnClickListener
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.total_score_fragment, container, false);
+        View view = inflater.inflate(R.layout.final_score_fragment, container, false);
 
 
         finalScoreTV = view.findViewById(R.id.final_score);
         tryAgainButt = view.findViewById(R.id.try_again_butt);
         quitBut = view.findViewById(R.id.quit_but);
         reviewBut = view.findViewById(R.id.review_answers);
+        home = view.findViewById(R.id.home);
 
         tryAgainButt.setOnClickListener(this);
         quitBut.setOnClickListener(this);
         reviewBut.setOnClickListener(this);
+        home.setOnClickListener(this);
 
         finalScoreTV.setText(String.valueOf(finalScore));
         Toast.makeText(getContext(), "Final Score: " + finalScore, Toast.LENGTH_SHORT).show();
 
         return view;
     }
-
-
 
 
     @RequiresApi(api = VERSION_CODES.JELLY_BEAN)
@@ -103,7 +103,7 @@ public class FinalScoreFragment extends Fragment implements View.OnClickListener
                 break;
             case R.id.quit_but:
                 getActivity().finishAffinity();
-                 break;
+                break;
             case R.id.try_again_butt:
 
                 QuestionFragment.isInReview = false;
@@ -111,6 +111,13 @@ public class FinalScoreFragment extends Fragment implements View.OnClickListener
                 intent.putExtra(QUESTIONS_LIST_KEY, WelcomeActivity.selectedQuiz);
                 startActivity(intent);
                 break;
+            case R.id.home:
+                Intent intent1 = new Intent(getContext(), WelcomeActivity.class);
+                startActivity(intent1);
         }
     }
+
+
+
+
 }
