@@ -49,6 +49,7 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     private OnButtonClickListener mOnButtonClickListener;
     private Question question;
     private ViewGroup innerQuestionLayout;
+    private ViewGroup createQuestionLayout;
     private Button saveQuestion;
     private EditText questionET;
     private Button saveET;
@@ -62,7 +63,12 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     private ImageView correct;
     private ImageView inCorrect;
     private Spinner typeSpinner;
+    private ViewGroup addAnswerLayout;
+    private Button removeAnswerButt;
+    private Button addAnswerButt;
+    private ViewGroup answerButtons;
     int questionType;
+    private LayoutInflater inflater;
 
     List<Question> questionList = new ArrayList<>();
 
@@ -127,15 +133,26 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         switch (v.getId()) {
 
             case R.id.save_question:
+                //save question
                 if (questionET.getText() != null && questionET.getText().length() > 0) {
 
 //                    questionList.add(new Question(getArguments().getInt(ARGS_QUESTION_ID, questionET.getText().toString(),
 //                            getQuestionType(typeSpinner.toString(),))));
                 }
+
                 break;
 
-            case R.id.submit_but:
-                //save question
+            case R.id.add_answer_butt:
+                //add another answer
+                EditText answer = (EditText) inflater.inflate(R.layout.answer_et, createQuestionLayout, false);
+                answer.setHint("Answer " + createQuestionLayout.indexOfChild(answer) + 1);
+
+                break;
+            case R.id.remove_answer_butt:
+                //add another answer
+                if (createQuestionLayout.getChildCount() != 0 && createQuestionLayout.getChildAt(0) != null) {
+                    createQuestionLayout.removeViewAt(createQuestionLayout.getChildCount()-1);
+                }
 
                 break;
 
@@ -167,6 +184,14 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         correct = view.findViewById(R.id.correct_image);
         inCorrect = view.findViewById(R.id.incorrect_image);
         typeSpinner = view.findViewById(R.id.spinner_quest_type);
+        createQuestionLayout = view.findViewById(R.id.inner_create_layout);
+        addAnswerButt = view.findViewById(R.id.add_answer_butt);
+
+        removeAnswerButt = view.findViewById(R.id.remove_answer_butt);
+
+        answerButtons = view.findViewById(R.id.answer_buttons);
+
+
 
         MainActivity.viewPager.setBackgroundColor(getResources().getColor(R.color.welcomeBkg));
 
@@ -175,129 +200,139 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         typeSpinner.setAdapter(adapter);
     }
 
-        @RequiresApi(api = VERSION_CODES.JELLY_BEAN_MR1)
-        public void setQuestionType(int type) {
-
-            //setLayoutParams
-            LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-            layoutParams.setMargins(100, 5, 24, 5);
-            layoutParams.gravity = Gravity.LEFT;
-
-            LayoutInflater inflater1 = LayoutInflater.from(getContext());
-            rg = (RadioGroup) inflater1.inflate(R.layout.answers_radiogroup_layout, innerQuestionLayout, false);
-            rg.setOrientation(LinearLayout.VERTICAL);
-            if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
-                rg.setTextAlignment(View.TEXT_ALIGNMENT_INHERIT);
-            }
-
-        //switch for answer types
-        //TODO add a spinner for choosing answer type. according to selection, create answer views
-
-            switch (type) {
-
-            case Answer.ONE_CORRECT_ANSWER:
-
-                final RadioButton[] rb = new RadioButton[question.getAnswers().length];
-
-
-                for (int i = 0; i < question.getAnswers().length; i++) {
-                    rb[i] = new RadioButton(getContext());
-                    rb[i].setTextSize(1, 18);
-                    rb[i].setLayoutParams(layoutParams);
-                    if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
-                        rb[i].setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-                        rb[i].setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
-                        rb[i].setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
-                    }
-
-
-                    //get answer from list
-                    Answer[] answers = question.getAnswers();
-                    rb[i].setText(answers[i].getAnswer());
-
-                    rg.addView(rb[i]);
-
-                }
-
-                innerQuestionLayout.addView(rg);
-
-                break;
-
-            case Answer.MULTIPLE_ANSWERS:
-
-                for (int i = 0; i < question.getAnswers().length; i++) {
-                    final CheckBox checkBox = new CheckBox(getContext());
-                    layoutParams.gravity = Gravity.LEFT;
-                    checkBox.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-                    checkBox.setLayoutParams(layoutParams);
-                    checkBox.setTextSize(1, 18);
-                    checkBox.setId(i);
-                    //get answer from list
-                    final Answer[] answers = question.getAnswers();
-                    checkBox.setText(answers[i].getAnswer());
-
-                    //continue to set the view
-                    rg.addView(checkBox);
-
-                    innerQuestionLayout.addView(rg);
-                }
-
-                break;
-
-            case Answer.TEXT_ANSWER:
-
-                EditText editText = new EditText(getContext());
-                layoutParams.gravity = Gravity.CENTER;
-                layoutParams.width = LayoutParams.MATCH_PARENT;
-                layoutParams.rightMargin = 100;
-                editText.setLayoutParams(layoutParams);
-                editText.setTextSize(18);
-                editText.setHint("type your answer here");
-                editText.setGravity(View.TEXT_ALIGNMENT_CENTER);
-
-                rg.addView(editText);
-                if (question.getAnswers()[0].getTextAnswerInput() != null) {
-                    editText.setText(question.getAnswers()[0].getTextAnswerInput());
-                }
-                innerQuestionLayout.addView(rg);
-                break;
-        }
-    }
-
-
-    //interfaces
-
-
-    //utility methods
-
-    //get buttonViews array
-    public CheckBox[] getCheckBoxesViewsArray(ViewGroup viewGroup) {
-        CheckBox[] buttonViews = new CheckBox[viewGroup.getChildCount()];
-        for (int i = 0; i < question.getAnswers().length; i++) {
-            buttonViews[i] = (CheckBox) viewGroup.getChildAt(i);
-        }
-        return buttonViews;
-    }
-
-    public RadioButton[] getRadioButtonViewsArray(ViewGroup viewGroup) {
-        RadioButton[] buttonViews = new RadioButton[viewGroup.getChildCount()];
-        for (int i = 0; i < question.getAnswers().length; i++) {
-            buttonViews[i] = (RadioButton) viewGroup.getChildAt(i);
-        }
-        return buttonViews;
-    }
+//        @RequiresApi(api = VERSION_CODES.JELLY_BEAN_MR1)
+//        public void setQuestionType(int type) {
+//
+//            //setLayoutParams
+//            LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+//            layoutParams.setMargins(100, 5, 24, 5);
+//            layoutParams.gravity = Gravity.LEFT;
+//
+//            LayoutInflater inflater1 = LayoutInflater.from(getContext());
+//            rg = (RadioGroup) inflater1.inflate(R.layout.answers_radiogroup_layout, innerQuestionLayout, false);
+//            rg.setOrientation(LinearLayout.VERTICAL);
+//            if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
+//                rg.setTextAlignment(View.TEXT_ALIGNMENT_INHERIT);
+//            }
+//
+//        //switch for answer types
+//        //TODO add a spinner for choosing answer type. according to selection, create answer views
+//
+//            switch (getQuestionType(typeSpinner.getSelectedItem().toString())) {
+//
+//            case Answer.ONE_CORRECT_ANSWER:
+//
+//                final RadioButton[] rb = new RadioButton[question.getAnswers().length];
+//
+//
+//                for (int i = 0; i < question.getAnswers().length; i++) {
+//                    rb[i] = new RadioButton(getContext());
+//                    rb[i].setTextSize(1, 18);
+//                    rb[i].setLayoutParams(layoutParams);
+//                    if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
+//                        rb[i].setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+//                        rb[i].setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
+//                        rb[i].setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
+//                    }
+//
+//
+//                    //get answer from list
+//                    Answer[] answers = question.getAnswers();
+//                    rb[i].setText(answers[i].getAnswer());
+//
+//                    rg.addView(rb[i]);
+//
+//                }
+//
+//                innerQuestionLayout.addView(rg);
+//
+//                break;
+//
+//            case Answer.MULTIPLE_ANSWERS:
+//
+//                for (int i = 0; i < question.getAnswers().length; i++) {
+//                    final CheckBox checkBox = new CheckBox(getContext());
+//                    layoutParams.gravity = Gravity.LEFT;
+//                    checkBox.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+//                    checkBox.setLayoutParams(layoutParams);
+//                    checkBox.setTextSize(1, 18);
+//                    checkBox.setId(i);
+//                    //get answer from list
+//                    final Answer[] answers = question.getAnswers();
+//                    checkBox.setText(answers[i].getAnswer());
+//
+//                    //continue to set the view
+//                    rg.addView(checkBox);
+//
+//                    innerQuestionLayout.addView(rg);
+//                }
+//
+//                break;
+//
+//            case Answer.TEXT_ANSWER:
+//
+//                EditText editText = new EditText(getContext());
+//                layoutParams.gravity = Gravity.CENTER;
+//                layoutParams.width = LayoutParams.MATCH_PARENT;
+//                layoutParams.rightMargin = 100;
+//                editText.setLayoutParams(layoutParams);
+//                editText.setTextSize(18);
+//                editText.setHint("type your answer here");
+//                editText.setGravity(View.TEXT_ALIGNMENT_CENTER);
+//
+//                rg.addView(editText);
+//                if (question.getAnswers()[0].getTextAnswerInput() != null) {
+//                    editText.setText(question.getAnswers()[0].getTextAnswerInput());
+//                }
+//                innerQuestionLayout.addView(rg);
+//                break;
+//        }
+//    }
+//
+//
+//    //interfaces
+//
+//
+//    //utility methods
+//
+//    //get buttonViews array
+//    public CheckBox[] getCheckBoxesViewsArray(ViewGroup viewGroup) {
+//        CheckBox[] buttonViews = new CheckBox[viewGroup.getChildCount()];
+//        for (int i = 0; i < question.getAnswers().length; i++) {
+//            buttonViews[i] = (CheckBox) viewGroup.getChildAt(i);
+//        }
+//        return buttonViews;
+//    }
+//
+//    public RadioButton[] getRadioButtonViewsArray(ViewGroup viewGroup) {
+//        RadioButton[] buttonViews = new RadioButton[viewGroup.getChildCount()];
+//        for (int i = 0; i < question.getAnswers().length; i++) {
+//            buttonViews[i] = (RadioButton) viewGroup.getChildAt(i);
+//        }
+//        return buttonViews;
+//    }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String selection = (String) parent.getItemAtPosition(position);
+
         switch (selection) {
             case "One correct Answer":
 
-                break;
             case "Multiple correct answers":
+
+                inflater = LayoutInflater.from(getContext());
+                addAnswerLayout = (ViewGroup) inflater.inflate(R.layout.add_answer_layout, createQuestionLayout, false);
+                addAnswerButt.setOnClickListener(this);
+                removeAnswerButt.setOnClickListener(this);
 
                 break;
             case "Text answer":
+                inflater = LayoutInflater.from(getContext());
+                addAnswerLayout = (ViewGroup) inflater.inflate(R.layout.add_answer_layout, createQuestionLayout, false);
+                answerButtons.setVisibility(View.GONE);
+                EditText ans = (EditText) addAnswerLayout.getChildAt(1);
+                ans.setHint("Enter your answer here");
 
                 break;
 

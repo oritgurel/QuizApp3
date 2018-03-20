@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_weight="1"
+    android:layout_gravity="center_vertical"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:id="@+id/answer_buttons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="horizontal">
+
+
+        <Button
+            android:id="@+id/add_answer_butt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.Button"
+            android:layout_marginLeft="5dp"
+            android:text="+"
+            android:layout_weight="1"
+            android:textSize="28sp"/>
+
+        <Button
+            android:id="@+id/remove_answer_butt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.Button"
+            android:layout_marginRight="5dp"
+            android:text="-"
+            android:layout_weight="1"
+            android:textSize="28sp"/>
+
+    </LinearLayout>
+
+    <EditText
+
+        android:layout_width="200dp"
+        tools:hint="Answer 1"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginVertical="5dp"
+        />
+
+</LinearLayout>
