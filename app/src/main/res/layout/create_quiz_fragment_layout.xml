@@ -78,16 +78,30 @@
 
         </RelativeLayout>
 
-    <LinearLayout
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbarStyle="insideInset"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+    <RelativeLayout
         android:id="@+id/inner_create_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        >
+
+</RelativeLayout>
+        </LinearLayout>
+    </ScrollView>
 
 
 
-</LinearLayout>
+
 
     <RelativeLayout
         android:layout_width="match_parent"

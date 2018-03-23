@@ -156,20 +156,24 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        for (int i = 0; i < questionList.size(); i++) {
-            for (int j = 0; j < QuestionsRepository.getInstance().getQuestion(i).getAnswers().length; j++) {
 
-                if (QuestionsRepository.getInstance().getQuestion(i).getAnswers()[j].isChecked()) {
-                    ViewGroup innerQuestionLayout = findViewById(R.id.inner_question_layout);
-                    if (innerQuestionLayout.getChildAt(3) != null) {
-                        RadioGroup radioGroup = (RadioGroup) innerQuestionLayout.getChildAt(3);
+        if (getFragmentManager().getFragment(outState, "QuestionFragment") != null) {
 
-                        RadioButton radioButton = (RadioButton) radioGroup.getChildAt(j);
-                        if (radioButton != null) {
-                        toast.cancel();
-                        outState.putBoolean("isButtonChecked", ((RadioButton) radioGroup.getChildAt(j)).isChecked());
-                        outState.putBoolean("isInReview", QuestionFragment.isInReview);
-                    }
+            for (int i = 0; i < questionList.size(); i++) {
+                for (int j = 0; j < QuestionsRepository.getInstance().getQuestion(i).getAnswers().length; j++) {
+
+                    if (QuestionsRepository.getInstance().getQuestion(i).getAnswers()[j].isChecked()) {
+                        ViewGroup innerQuestionLayout = findViewById(R.id.inner_question_layout);
+                        if (innerQuestionLayout.getChildAt(3) != null) {
+                            RadioGroup radioGroup = (RadioGroup) innerQuestionLayout.getChildAt(3);
+
+                            RadioButton radioButton = (RadioButton) radioGroup.getChildAt(j);
+                            if (radioButton != null) {
+                                toast.cancel();
+                                outState.putBoolean("isButtonChecked", ((RadioButton) radioGroup.getChildAt(j)).isChecked());
+                                outState.putBoolean("isInReview", QuestionFragment.isInReview);
+                            }
+                        }
                     }
                 }
             }
@@ -179,16 +183,19 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        QuestionFragment.isInReview = savedInstanceState.getBoolean("isInReview");
-        for (int i = 0; i < questionList.size(); i++) {
-            for (int j = 0; j < QuestionsRepository.getInstance().getQuestion(i).getAnswers().length; j++) {
-                ViewGroup innerQuestionLayout = findViewById(R.id.inner_question_layout);
-                if (innerQuestionLayout.getChildAt(3) != null) {
-                    RadioGroup radioGroup = (RadioGroup) innerQuestionLayout.getChildAt(3);
 
-                    RadioButton radioButton = (RadioButton) radioGroup.getChildAt(j);
-                    savedInstanceState.getBoolean("isButtonChecked");
+        if (getFragmentManager().getFragment(savedInstanceState, "QuestionFragment") != null) {
+            QuestionFragment.isInReview = savedInstanceState.getBoolean("isInReview");
+            for (int i = 0; i < questionList.size(); i++) {
+                for (int j = 0; j < QuestionsRepository.getInstance().getQuestion(i).getAnswers().length; j++) {
+                    ViewGroup innerQuestionLayout = findViewById(R.id.inner_question_layout);
+                    if (innerQuestionLayout.getChildAt(3) != null) {
+                        RadioGroup radioGroup = (RadioGroup) innerQuestionLayout.getChildAt(3);
 
+                        RadioButton radioButton = (RadioButton) radioGroup.getChildAt(j);
+                        savedInstanceState.getBoolean("isButtonChecked");
+
+                    }
                 }
             }
         }
