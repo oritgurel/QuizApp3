@@ -37,6 +37,11 @@
 
     <style name="spinnerDropDownItemStyle" parent="android:TextAppearance.Material.Widget.TextView.SpinnerItem">
     </style>
+    
+    <!--<style name="MyDialogAlert" parent="android:Theme_Material_Dialog_Alert">-->
+
+
+    <!--</style>-->
 
 
 </resources>

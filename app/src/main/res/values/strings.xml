@@ -2,6 +2,10 @@
     <string name="app_name">QuizApp</string>
     <string name="select_quiz">Select Quiz</string>
     <string name="create_quiz">Create quiz</string>
+    <string name="enter_quiz_name">Enter quiz name</string>
+    <string name="save_quiz_name">Save</string>
+    <string name="one_correct_answer_title_dialog">One Correct Answer</string>
+    <string name="one_correct_msg_dialog">This is a one-correct-answer question.  Only one correct answer is allowed.</string>
 
     <string-array name="question_types_array">
         <item>One correct Answer</item>
