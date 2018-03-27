@@ -77,6 +77,7 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     private Quiz quiz;
     private String quizName;
     private Switch[] isCorrect;
+    public static boolean isSwitchChecked;
 
     List<Question> questionList = new ArrayList<>();
     Answer[] answers;
@@ -164,6 +165,8 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
                 } else {
 
                     //TODO popup dialogue show message "Please state question text."
+                    questionET.requestFocus();
+                    questionET.setError("Please fill in question text.");
                 }
                     for (int i=1; i<createQuestionLayout.getChildCount(); i++) {
                         answersCount=0;
@@ -428,26 +431,27 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-            //check if multiple answers are marked as correct
-            int count=0;
+        //check if multiple single-choice answers are marked as correct. if so,  popup dialog
+        int count = 0;
 
-                for (int i = 1; i < isCorrect.length; i++) {
-                    Log.d("SwitchArrayList: ", Arrays.toString(isCorrect));
-                    if (isCorrect[i].isChecked()) {
-                        count++;
+        if (typeSpinner.getSelectedItem().equals("One correct Answer")) {
 
-                    }
-                }
-
-                if (count > 1) {
-
+            for (int i = 1; i < isCorrect.length; i++) {
+                Log.d("SwitchArrayList: ", Arrays.toString(isCorrect));
+                if (isCorrect[i].isChecked()) {
+                    count++;
+                    if (count > 1) {
                         buttonView.setChecked(false);
                         onlyOneCorrectAllowedDialog();
-                        //buttonView.requestFocus();
-                    //buttonView.setError("Only one correct answer is allowed.");
+                        break;
+                    }
+
                 }
+            }
 
         }
+    }
+
 
 
     public void onlyOneCorrectAllowedDialog() {
@@ -494,11 +498,15 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     public void fillSwitchesArray() {
         isCorrect = new Switch[createQuestionLayout.getChildCount()];
         for (int i=1; i<createQuestionLayout.getChildCount(); i++) {
-            ViewGroup viewGroup = (ViewGroup) createQuestionLayout.getChildAt(1);
-            isCorrect[i] = (Switch) viewGroup.getChildAt(1);
-            isCorrect[i].setOnCheckedChangeListener(this::onCheckedChanged);
+            ViewGroup viewGroup = (ViewGroup) createQuestionLayout.getChildAt(i);
+            for (int j=i; j<createQuestionLayout.getChildCount(); j++) {
+                isCorrect[j] = (Switch) viewGroup.getChildAt(1);
+                isCorrect[j].setOnCheckedChangeListener(this);
+            }
         }
     }
+
+
 
     public void removeMultipleChoiceAnswer() {
         if (createQuestionLayout.getChildAt(1) != null) {
