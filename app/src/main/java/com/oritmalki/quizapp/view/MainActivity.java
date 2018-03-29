@@ -50,11 +50,6 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
 
         savedInstanceState = this.savedInstanceState;
 
-        //create an fragment which prompts the user to create a questions list or select from existing questionLists (if available). This should be in the welcome activity
-        //TODO if user chooses to create a list of question ->
-        //TODO create an activity with a questionFragment which prompts the user to insert the questions and the answers, like a form, triggered by a method "createQuestionList"
-        //TODO to this form, add a "select type of question" at the top (add another viewGroup on top in editFragment and make it invisible when the question type is selected
-
         //Here is where the data is inserted.
 
         if (getIntent().getExtras() != null) {

@@ -127,6 +127,7 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         currentItem = (int) this.getArguments().get(ARGS_CURRENT_ITEM);
+        //TODO save quiz data to shared preferences for persistancy
 
     }
 
@@ -136,7 +137,6 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        //TODO add a dialogue for setting quiz name (only on first fragment)
         quiz = new Quiz(quizName, questionList);
 
         View view = inflater.inflate(R.layout.create_quiz_fragment_layout, container, false);
@@ -203,7 +203,6 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
 
 
                         answers[i] = new Answer(inputAnswerEt[i].getText().toString(), isCorrect[i].isChecked());
-                        //TODO questionID = viewPager.get fragment current index...
 
 
                     } else {
@@ -249,7 +248,6 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
                         Toast.makeText(getContext(), "Question saved", Toast.LENGTH_SHORT).show();
                         Log.d("Question saved: ", question.toString());
                         Log.d("QuestionList", questionList.toString());
-                        //TODO save and go to next page
 
                         //TODO add another button for finish - that will lead to the list of quizes with the new one updated (add the quiz to the quiz list and go to list fragment
                 }
