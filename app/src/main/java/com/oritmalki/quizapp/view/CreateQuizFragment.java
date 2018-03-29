@@ -13,6 +13,8 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,7 +47,7 @@ import java.util.List;
  * Created by Orit on 1.2.2018.
  */
 
-public class CreateQuizFragment extends Fragment implements View.OnClickListener, OnItemSelectedListener, CompoundButton.OnCheckedChangeListener {
+public class CreateQuizFragment extends Fragment implements View.OnClickListener, OnItemSelectedListener, CompoundButton.OnCheckedChangeListener, TextWatcher {
 
     //declare layout views...
     private static final String ARGS_QUESTION_ID = "args_question_id";
@@ -77,6 +79,9 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     private Quiz quiz;
     private String quizName;
     private Switch[] isCorrect;
+    private EditText[] inputAnswerEt;
+    private ViewGroup questionParamContainer;
+    private ViewGroup questionLayout;
     public static boolean isSwitchChecked;
 
     List<Question> questionList = new ArrayList<>();
@@ -154,48 +159,76 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
                 //save question
                 Question question;
                 String questionText = "";
-                String answer;
-                int type;
-                int answersCount=0;
-                Answer[] answers = new Answer[answersCount];
+
 
                 //get question text
                 if (questionET.getText() != null && questionET.getText().length() > 0) {
                     questionText = questionET.getText().toString();
                 } else {
 
-                    //TODO popup dialogue show message "Please state question text."
                     questionET.requestFocus();
                     questionET.setError("Please fill in question text.");
                 }
-                    for (int i=1; i<createQuestionLayout.getChildCount(); i++) {
-                        answersCount=0;
-                        if (createQuestionLayout.getChildAt(i) instanceof EditText) {
-                            EditText et = (EditText) createQuestionLayout.getChildAt(i);
-                            answersCount++;
 
-                            //TODO add boolean input for correct/incorrect
 
-//                            if (et.getText() != null && et.getText().length() > 0) {
-//                                answer = et.getText().toString();
-//                                answers[i] = answer;
-//                            }
-//                            else {
-//                                //TODO popup dialogue show message "You haven't filled in all answer fields"
-//                            }
-                        }
+                //get answers texts and correctness
 
+                answers = new Answer[inputAnswerEt.length];
+
+                for (int i=0; i<inputAnswerEt.length; i++) {
+
+                    //if text fields are not empty
+                    if (inputAnswerEt[i].getText() != null && inputAnswerEt[i].getText().length() > 0) {
+
+
+                        answers[i] = new Answer(inputAnswerEt[i].getText().toString(), isCorrect[i].isChecked());
+                        //TODO questionID = viewPager.get fragment current index...
+
+
+                    } else {
+                        inputAnswerEt[i].setError("Please fill answer text");
+                        break;
                     }
-                    //TODO questionID = viewPager.get fragment current index...
-                    question = new Question(0, questionText, getQuestionType(typeSpinner.getSelectedItem().toString()), answers);
-                    questionList.add(question);
+
+                }
 
 
-                    //TODO save and go to next page
+                //check if no correct answer was switched
+                int countOff = 0;
+                int countError = 0;
+                for (int i=0; i<inputAnswerEt.length; i++) {
+                    //get total errors
+                    if (inputAnswerEt[i].getError() !=null && inputAnswerEt[i].getError().equals("Please fill answer text")) {
+                        countError++;
+                    } if (questionET.getError() != null && questionET.getError().equals("Please fill answer text")) {
+                    }
+                    //get total unchecked switches
+                    if (isCorrect[i].isChecked() == false) {
+                        countOff++;
+                    }
 
-                //TODO add another button for finish - that will lead to the list of quizes with the new one updated (add the quiz to the quiz list and go to list fragment)
+                }
 
-//
+                    //if not all fields have text - break operation and don't save
+                    if (countError > 0) {
+                        Toast.makeText(getContext(), "Must fill all fields", Toast.LENGTH_SHORT).show();
+                    }
+
+                    else if (countOff == inputAnswerEt.length) {
+                        //display error dialog
+                    atLeastOneCorrectAllowedDialog();
+                }
+
+                    else {
+                        //save question
+                        question = new Question(0, questionText, getQuestionType(typeSpinner.getSelectedItem().toString()), answers);
+                        questionList.add(question);
+                        Toast.makeText(getContext(), "Question saved", Toast.LENGTH_SHORT).show();
+                        Log.d("Answer saved: ", Arrays.toString(question.getAnswers()));
+                        //TODO save and go to next page
+
+                        //TODO add another button for finish - that will lead to the list of quizes with the new one updated (add the quiz to the quiz list and go to list fragment
+                }
 
                 break;
 
@@ -203,14 +236,14 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
                 //add another answer
 
                 addMultipleChoiceAnswer();
-                fillSwitchesArray();
+                fillAnswersArray();
 
                 break;
             case R.id.remove_answer_butt:
                 //remove answer
 
                 removeMultipleChoiceAnswer();
-                fillSwitchesArray();
+                fillAnswersArray();
 
                 break;
 
@@ -233,6 +266,7 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         prevBut = view.findViewById(R.id.prev_but);
         nextBut = view.findViewById(R.id.next_but);
         questionET = view.findViewById(R.id.question_et);
+        questionET.addTextChangedListener(this);
         saveQuestion = view.findViewById(R.id.save_question);
         saveQuestion.setOnClickListener(this);
         prevBut.setOnClickListener(this);
@@ -242,6 +276,10 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         inCorrect = view.findViewById(R.id.incorrect_image);
         typeSpinner = view.findViewById(R.id.spinner_quest_type);
         createQuestionLayout = view.findViewById(R.id.create_question_layout);
+        questionParamContainer = view.findViewById(R.id.question_params_container);
+        questionLayout = view.findViewById(R.id.question_layout);
+
+
 
 
 
@@ -324,9 +362,16 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         if (createQuestionLayout != null) {
             createQuestionLayout.removeAllViews();
         }
+            if (questionLayout.getChildAt(3).equals(addAnswerLayout)) {
+                questionLayout.removeView(addAnswerLayout);
+        }
         inflater = LayoutInflater.from(getContext());
-        addAnswerLayout = (ViewGroup) inflater.inflate(R.layout.add_answer_layout, createQuestionLayout, false);
-        createQuestionLayout.addView(addAnswerLayout);
+        addAnswerLayout = (ViewGroup) inflater.inflate(R.layout.add_answer_layout, questionLayout, false);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(addAnswerLayout.getLayoutParams());
+        params.addRule(RelativeLayout.BELOW, typeSpinner.getId());
+        addAnswerLayout.setLayoutParams(params);
+
+        questionLayout.addView(addAnswerLayout, 3);
         answerButtons = addAnswerLayout.findViewById(R.id.answer_buttons);
         addAnswerButt = answerButtons.findViewById(R.id.add_answer_butt);
         removeAnswerButt = answerButtons.findViewById(R.id.remove_answer_butt);
@@ -347,6 +392,10 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         if (createQuestionLayout !=null) {
             createQuestionLayout.removeAllViews();
         }
+        if (questionLayout.getChildAt(3).equals(addAnswerLayout)) {
+            questionLayout.removeView(addAnswerLayout);
+        }
+
         inflater = LayoutInflater.from(getContext());
         addAnswerLayout = (ViewGroup) inflater.inflate(R.layout.add_answer_layout, createQuestionLayout, false);
         createQuestionLayout.addView(addAnswerLayout);
@@ -436,7 +485,7 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
 
         if (typeSpinner.getSelectedItem().equals("One correct Answer")) {
 
-            for (int i = 1; i < isCorrect.length; i++) {
+            for (int i = 0; i < isCorrect.length; i++) {
                 Log.d("SwitchArrayList: ", Arrays.toString(isCorrect));
                 if (isCorrect[i].isChecked()) {
                     count++;
@@ -452,6 +501,20 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         }
     }
 
+    public void showDialogIfNonSelectedAsCorrect() {
+        int countOff = 0;
+        for (int i=1; i<inputAnswerEt.length; i++) {
+            if (isCorrect[i].isChecked() == false) {
+                countOff++;
+            }
+        }
+
+        if (countOff == inputAnswerEt.length) {
+            atLeastOneCorrectAllowedDialog();
+        }
+
+    }
+
 
 
     public void onlyOneCorrectAllowedDialog() {
@@ -464,6 +527,22 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         }
         builder.setTitle(R.string.one_correct_answer_title_dialog)
                 .setMessage(R.string.one_correct_msg_dialog);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
+
+    public void atLeastOneCorrectAllowedDialog() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Light_Dialog);
+        } else {
+            builder = new AlertDialog.Builder(getContext());
+        }
+        builder.setTitle(R.string.no_correct_checked_dialog_title)
+                .setMessage(R.string.no_correct_checked_dialog_msg);
 
         AlertDialog dialog = builder.create();
         dialog.show();
@@ -491,17 +570,22 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         }
         insertAnswer.setLayoutParams(lp);
         createQuestionLayout.addView(insertAnswer);
-        answerText.setHint("Insert answer " + (createQuestionLayout.indexOfChild(createQuestionLayout.getChildAt(createQuestionLayout.getChildCount()-2))+1));
+        answerText.setHint("Insert answer " + (createQuestionLayout.indexOfChild(createQuestionLayout.getChildAt(createQuestionLayout.getChildCount()-1))+1));
 
     }
 
-    public void fillSwitchesArray() {
+    public void fillAnswersArray() {
         isCorrect = new Switch[createQuestionLayout.getChildCount()];
-        for (int i=1; i<createQuestionLayout.getChildCount(); i++) {
+        inputAnswerEt = new EditText[createQuestionLayout.getChildCount()];
+        for (int i=0; i<createQuestionLayout.getChildCount(); i++) {
             ViewGroup viewGroup = (ViewGroup) createQuestionLayout.getChildAt(i);
             for (int j=i; j<createQuestionLayout.getChildCount(); j++) {
                 isCorrect[j] = (Switch) viewGroup.getChildAt(1);
+                isCorrect[j].setChecked(false);
                 isCorrect[j].setOnCheckedChangeListener(this);
+                inputAnswerEt[j] = (EditText) viewGroup.getChildAt(0);
+                inputAnswerEt[j].addTextChangedListener(this);
+
             }
         }
     }
@@ -509,11 +593,78 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
 
 
     public void removeMultipleChoiceAnswer() {
-        if (createQuestionLayout.getChildAt(1) != null) {
-//                    if (createQuestionLayout.getChildAt(createQuestionLayout.getChildCount()-1) instanceof EditText) {
+        if (createQuestionLayout.getChildAt(0) != null) {
             createQuestionLayout.removeViewAt(createQuestionLayout.getChildCount() - 1);
 
         }
+    }
+
+    public boolean isValidInput(String s) {
+        boolean isValidInput;
+        if (s != null && s.length() > 0) {
+            isValidInput = true;
+        } else {
+            isValidInput = false;
+        }
+        return isValidInput;
+    }
+
+    public boolean isQuestionValid(String q) {
+        q = questionET.getText().toString();
+        return isValidInput(q);
+    }
+
+//    public boolean areAllAnswersValid(String a) {
+//
+//        int countValid=0;
+//        for (int i=0; i<createQuestionLayout.getChildCount(); i++) {
+//            ViewGroup viewGroup = (ViewGroup) createQuestionLayout.getChildAt(i);
+//            EditText et = (EditText) viewGroup.getChildAt(0);
+//           if (a == et.getText().toString()) {
+//               if (isValidInput(a)) {
+//                   countValid++;
+//               }
+//           }
+//
+//        return isValidInput();
+//    }
+
+    public void setSaveQuestionButtonState(String s) {
+        saveQuestion.setEnabled(false);
+        if (isValidInput(s)) {
+            if (createQuestionLayout.getChildCount() != 0) {
+                int countValidFields=0;
+                int countOff=0;
+                for (int i=0; i<createQuestionLayout.getChildCount(); i++) {
+                    ViewGroup viewGroup = (ViewGroup) createQuestionLayout.getChildAt(i);
+                    EditText et = (EditText) viewGroup.getChildAt(0);
+                    if (isValidInput(s)) {
+                        countValidFields++;
+                    }
+                    if (isCorrect[i].isChecked() == false) {
+                        countOff++;
+                    }
+                }
+                if (countValidFields == createQuestionLayout.getChildCount() && countOff != createQuestionLayout.getChildCount()) {
+                    saveQuestion.setEnabled(true);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+//        setSaveQuestionButtonState(s.toString());
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+
     }
 
 }

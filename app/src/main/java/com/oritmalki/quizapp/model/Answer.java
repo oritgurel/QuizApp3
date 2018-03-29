@@ -53,4 +53,12 @@ public class Answer implements Serializable {
     public void setTextAnswerInput(String textAnswerInput) {
         this.textAnswerInput = textAnswerInput;
     }
+
+    @Override
+    public String toString() {
+        return "Answer{" +
+                "answer='" + answer + '\'' +
+                ", isCorrect=" + isCorrect +
+                '}';
+    }
 }
