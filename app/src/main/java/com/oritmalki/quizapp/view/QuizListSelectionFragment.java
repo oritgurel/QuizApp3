@@ -22,10 +22,12 @@ import java.util.List;
  * Created by Orit on 28.2.2018.
  */
 
-public class QuizListSelectionFragment extends ListFragment {
+public class
+QuizListSelectionFragment extends ListFragment {
 
     GenerateData generateData = new GenerateData();
     QuizRepository quizRepository = QuizRepository.getInstance();
+    public static QuizListAdapter adapter;
 
 
     List<Quiz> quizList = new ArrayList<>(quizRepository.getQuizList());
@@ -62,11 +64,14 @@ public class QuizListSelectionFragment extends ListFragment {
         quizRepository.saveQuiz(quiz);
 
 //        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.quiz_list_selection_fragment, container, false);
-        QuizListAdapter adapter = new QuizListAdapter(
+        adapter = new QuizListAdapter(
 
                 getActivity(), R.id.list, quizRepository.getQuizList(), mCallback);
         this.setListAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
 //        setRetainInstance(true);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
+
 }

@@ -15,27 +15,27 @@ public class QuizRepository {
     private final static QuizRepository INSTANCE = new QuizRepository();
 
     //sorted Map, maintains items order
-    private TreeMap<String, Quiz> questionMap;
+    private TreeMap<String, Quiz> quizTreeMap;
 
     public static QuizRepository getInstance() {
         return INSTANCE;
     }
 
     private QuizRepository() {
-        this.questionMap = new TreeMap<>();
+        this.quizTreeMap = new TreeMap<>();
 
     }
 
     public void saveQuiz(Quiz questions) {
-        questionMap.put(questions.getQuizName(), questions);
+        quizTreeMap.put(questions.getQuizName(), questions);
     }
 
     public Quiz getQuiz(String questionListName) {
-        return questionMap.get(questionMap.get(questionListName));
+        return quizTreeMap.get(quizTreeMap.get(questionListName));
     }
 
     public List<Quiz> getQuizList() {
-        return new ArrayList<>(questionMap.values());
+        return new ArrayList<>(quizTreeMap.values());
     }
 }
 

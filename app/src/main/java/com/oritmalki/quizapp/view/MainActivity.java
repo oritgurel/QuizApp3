@@ -20,7 +20,7 @@ import java.util.List;
 
 import static com.oritmalki.quizapp.view.QuestionFragment.toast;
 
-public class MainActivity extends AppCompatActivity implements OnButtonClickListener {
+public class MainActivity extends AppCompatActivity implements OnButtonClickListener, QuizListAdapterCallback {
 
     protected static ViewPager viewPager;
 
@@ -34,6 +34,9 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
     public static int questionListId = 0;
     public static final String QUESTIONS_LIST_KEY = "Questions_List";
     public static final String TO_CREATE_QUIZ_FRAGMENT = "to_create_quiz_fragment";
+    List<CreateQuizFragment> createQuizFragments;
+    QuestionsPagerAdapter adapter;
+    int currPos;
 
 
 
@@ -109,19 +112,19 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
 
         }
 
-        QuestionsPagerAdapter adapter = new QuestionsPagerAdapter(getSupportFragmentManager(), questionFragments);
+        adapter = new QuestionsPagerAdapter(getSupportFragmentManager(), questionFragments);
         viewPager.setAdapter(adapter);
     }
 
     public void initViewPagerWithCreateQuiz() {
 
-        List<CreateQuizFragment> createQuizFragments = new ArrayList<>();
+       createQuizFragments = new ArrayList<>();
+       List<Question> questionList = new ArrayList<>();
 
-        createQuizFragments.add(CreateQuizFragment.newInstance(1));
-
-
+        createQuizFragments.add(CreateQuizFragment.newInstance(currPos));
         QuestionsPagerAdapter adapter = new QuestionsPagerAdapter(getSupportFragmentManager(), createQuizFragments);
         viewPager.setAdapter(adapter);
+        currPos = viewPager.getCurrentItem();
     }
 
 
@@ -129,7 +132,6 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
     @Override
     public void onButtonClicked(View view) {
 
-        int currPos = viewPager.getCurrentItem();
         switch (view.getId()) {
             case R.id.next_but:
                 if (currPos != viewPager.getAdapter().getCount()) {
@@ -149,6 +151,21 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
                 break;
             case R.id.review_answers:
                 viewPager.setCurrentItem(currPos - 1, true);
+                break;
+
+            case R.id.next_create_butt:
+                currPos = viewPager.getCurrentItem();
+                createQuizFragments.add(CreateQuizFragment.newInstance(currPos+1));
+                viewPager.getAdapter().notifyDataSetChanged();
+
+                MainActivity.viewPager.setCurrentItem(currPos + 1, true);
+
+
+                break;
+            case R.id.prev_create_but:
+                currPos = viewPager.getCurrentItem();
+                MainActivity.viewPager.setCurrentItem(currPos - 1, true);
+
                 break;
         }
     }
@@ -199,5 +216,10 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
                 }
             }
         }
+    }
+
+    @Override
+    public void onAdapterClick(Quiz quiz) {
+
     }
 }

@@ -39,4 +39,13 @@ public class QuestionsPagerAdapter extends FragmentStatePagerAdapter {
 
         return super.instantiateItem(container, position);
     }
+
+    @Override
+    public int getItemPosition(Object object) {
+        if (object instanceof CreateQuizFragment) {
+            ((CreateQuizFragment) object).notifyUpdate();
+        }
+
+        return super.getItemPosition(object);
+    }
 }

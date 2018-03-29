@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -30,7 +28,7 @@
             android:layoutDirection="ltr"
             android:layout_alignParentLeft="true"
             android:background="#70FFFFFF"
-            android:hint="Enter question here."
+            tools:hint="Enter question here."
             android:textAlignment="gravity"
             android:textDirection="firstStrong"
             android:paddingHorizontal="20dp"
@@ -41,14 +39,6 @@
             android:textStyle="bold"
             android:gravity="start"/>
 
-            <!--<Button-->
-                <!--android:id="@+id/save_et"-->
-                <!--android:text="save"-->
-                <!--android:layout_marginRight="16dp"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_alignParentBottom="true"-->
-                <!--android:layout_toRightOf="@+id/question_et"/>-->
         </LinearLayout>
 
 
@@ -58,7 +48,7 @@
             android:layout_height="wrap_content"
             android:text="Select question type:"
             android:padding="20dp"
-            android:textSize="18dp"/>
+            android:textSize="18sp"/>
 
         <RelativeLayout
             android:id="@+id/question_params_container"
@@ -82,17 +72,16 @@
 
         </RelativeLayout>
 
-    <!--<ScrollView-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:scrollbarStyle="insideInset"-->
-        <!--android:layout_weight="1">-->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbarStyle="insideInset"
+        android:layout_weight="1">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1">
-
 
     <RelativeLayout
         android:id="@+id/create_question_layout"
@@ -102,28 +91,14 @@
 
 </RelativeLayout>
         </LinearLayout>
-    <!--</ScrollView>-->
-
-
-
-
+    </ScrollView>
 
     <RelativeLayout
         android:id="@+id/contol_buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="24dp">
-
-        <Button
-            android:id="@+id/next_but"
-            android:theme="@style/AppTheme.Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Next"
-            android:visibility="invisible"
-            android:layout_marginHorizontal="16dp"
-            android:layout_toRightOf="@id/submit_but"
-            />
+        android:paddingTop="24dp"
+        android:layout_gravity="bottom">
 
         <Button
             android:id="@+id/save_question"
@@ -131,20 +106,41 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Save Question"
-            android:textSize="18sp"
+            android:textSize="16sp"
+            android:padding="10dp"
             android:visibility="visible"
-            android:layout_marginBottom="42dp"
-            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="10dp"
             android:layout_centerHorizontal="true"
             />
 
         <Button
-            android:id="@+id/prev_but"
+            android:id="@+id/prev_create_but"
             android:text="Prev"
-            android:visibility="invisible"
+            android:visibility="visible"
+            android:theme="@style/AppTheme.Button"
+            android:layout_marginLeft="16dp"
+            android:layout_toLeftOf="@id/submit_but"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/next_create_butt"
+            android:text="Next"
+            android:visibility="visible"
+            android:theme="@style/AppTheme.Button"
+            android:layout_toRightOf="@id/save_question"
+            android:layout_width="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="16dp"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/save_quiz"
+            android:text="save quiz"
+            android:padding="10dp"
+            android:layout_centerHorizontal="true"
+            android:visibility="visible"
             android:theme="@style/AppTheme.Button"
             android:layout_marginHorizontal="16dp"
-            android:layout_toLeftOf="@id/submit_but"
+            android:layout_below="@id/save_question"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </RelativeLayout>
@@ -152,4 +148,4 @@
 
 </LinearLayout>
 </LinearLayout>
-</ScrollView>
+

@@ -1,6 +1,7 @@
 package com.oritmalki.quizapp.model;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Created by Orit on 31.1.2018.
@@ -20,6 +21,7 @@ public class Question implements Serializable {
         this.question = question;
         this.answers = answers;
         this.id = id;
+        this.type = type;
     }
 
 
@@ -61,5 +63,15 @@ public class Question implements Serializable {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    @Override
+    public String toString() {
+        return "Question{" +
+                "question='" + question + '\'' +
+                ", answers=" + Arrays.toString(answers) +
+                ", type=" + type +
+                ", id=" + id +
+                '}';
     }
 }

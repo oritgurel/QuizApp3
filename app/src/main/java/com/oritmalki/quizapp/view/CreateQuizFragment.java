@@ -3,6 +3,7 @@ package com.oritmalki.quizapp.view;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Build;
@@ -12,6 +13,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -33,6 +35,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.oritmalki.quizapp.Data.QuestionsRepository;
+import com.oritmalki.quizapp.Data.QuizRepository;
 import com.oritmalki.quizapp.R;
 import com.oritmalki.quizapp.model.Answer;
 import com.oritmalki.quizapp.model.Question;
@@ -51,6 +55,7 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
 
     //declare layout views...
     private static final String ARGS_QUESTION_ID = "args_question_id";
+    private static String ARGS_CURRENT_ITEM = "args_current_item";
     private QuestionFragmentListener listener;
     private OnButtonClickListener mOnButtonClickListener;
     private Question question;
@@ -58,8 +63,6 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     private Button saveQuestion;
     private EditText questionET;
     private Button saveET;
-    private Button nextBut;
-    private Button prevBut;
     SharedPreferences preferences;
     Editor editor;
     public RadioGroup rg;
@@ -71,6 +74,9 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     private ViewGroup addAnswerLayout;
     private Button removeAnswerButt;
     private Button addAnswerButt;
+    private Button nextCreateBut;
+    private Button prevCreateBut;
+    private Button saveQuiz;
     private ViewGroup answerButtons;
     private ViewGroup controlTitles;
     private TextView isCorrectTv;
@@ -83,18 +89,24 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     private ViewGroup questionParamContainer;
     private ViewGroup questionLayout;
     public static boolean isSwitchChecked;
+    private static int currentItem;
+    boolean quizNameIsSet = false;
+    int type;
+    QuestionsRepository questionsRepository = QuestionsRepository.getInstance();
+
 
     List<Question> questionList = new ArrayList<>();
+
     Answer[] answers;
 
 
 
 
 
-    public static CreateQuizFragment newInstance(int questionId) {
+    public static CreateQuizFragment newInstance(int currentItem) {
         CreateQuizFragment createQuizFragment = new CreateQuizFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt(ARGS_QUESTION_ID, questionId);
+        bundle.putInt(ARGS_CURRENT_ITEM, currentItem);
         createQuizFragment.setArguments(bundle);
         return createQuizFragment;
     }
@@ -114,7 +126,7 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        currentItem = (int) this.getArguments().get(ARGS_CURRENT_ITEM);
 
     }
 
@@ -128,8 +140,13 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         quiz = new Quiz(quizName, questionList);
 
         View view = inflater.inflate(R.layout.create_quiz_fragment_layout, container, false);
+        currentItem = (int) getArguments().get(ARGS_CURRENT_ITEM);
 
-        setQuizNameDialog();
+        if (quizNameIsSet ==false && currentItem == 0) {
+            setQuizNameDialog();
+            quizNameIsSet = true;
+
+        }
 
         initializeViews(view);
 
@@ -173,7 +190,11 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
 
                 //get answers texts and correctness
 
-                answers = new Answer[inputAnswerEt.length];
+                try {
+                    answers = new Answer[inputAnswerEt.length];
+                } catch (NullPointerException e) {
+                    Toast.makeText(getContext(), "Please add answers to your question", Toast.LENGTH_SHORT).show();
+                }
 
                 for (int i=0; i<inputAnswerEt.length; i++) {
 
@@ -221,10 +242,13 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
 
                     else {
                         //save question
-                        question = new Question(0, questionText, getQuestionType(typeSpinner.getSelectedItem().toString()), answers);
+                        type = getQuestionType(typeSpinner.getSelectedItem().toString());
+                        currentItem = (int) getArguments().get(ARGS_CURRENT_ITEM);
+                        question = new Question(currentItem, questionText, type, answers);
                         questionList.add(question);
                         Toast.makeText(getContext(), "Question saved", Toast.LENGTH_SHORT).show();
-                        Log.d("Answer saved: ", Arrays.toString(question.getAnswers()));
+                        Log.d("Question saved: ", question.toString());
+                        Log.d("QuestionList", questionList.toString());
                         //TODO save and go to next page
 
                         //TODO add another button for finish - that will lead to the list of quizes with the new one updated (add the quiz to the quiz list and go to list fragment
@@ -246,6 +270,14 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
                 fillAnswersArray();
 
                 break;
+            case R.id.save_quiz:
+                Quiz quiz = new Quiz(quizName, questionList);
+                QuizRepository.getInstance().saveQuiz(quiz);
+//                QuizListSelectionFragment.adapter.notifyDataSetChanged();
+                QuizListSelectionFragment selectionFragment = new QuizListSelectionFragment();
+                getFragmentManager().beginTransaction().replace(R.id.total_score_container, selectionFragment).show(selectionFragment).commit();
+
+
 
             default:
                 mOnButtonClickListener.onButtonClicked(v);
@@ -263,14 +295,14 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     public void initializeViews(View view) {
 
         //buttons and onclick events
-        prevBut = view.findViewById(R.id.prev_but);
-        nextBut = view.findViewById(R.id.next_but);
+        prevCreateBut = view.findViewById(R.id.prev_create_but);
+        nextCreateBut = view.findViewById(R.id.next_create_butt);
         questionET = view.findViewById(R.id.question_et);
         questionET.addTextChangedListener(this);
         saveQuestion = view.findViewById(R.id.save_question);
         saveQuestion.setOnClickListener(this);
-        prevBut.setOnClickListener(this);
-        nextBut.setOnClickListener(this);
+        prevCreateBut.setOnClickListener(this);
+        nextCreateBut.setOnClickListener(this);
         rg = view.findViewById(R.id.radio_group);
         correct = view.findViewById(R.id.correct_image);
         inCorrect = view.findViewById(R.id.incorrect_image);
@@ -278,10 +310,11 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         createQuestionLayout = view.findViewById(R.id.create_question_layout);
         questionParamContainer = view.findViewById(R.id.question_params_container);
         questionLayout = view.findViewById(R.id.question_layout);
+        saveQuiz = view.findViewById(R.id.save_quiz);
+        saveQuiz.setOnClickListener(this);
 
 
-
-
+        questionET.setHint(currentItem+1 + ". Enter question text here");
 
 
         MainActivity.viewPager.setBackgroundColor(getResources().getColor(R.color.welcomeBkg));
@@ -300,7 +333,7 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
 
         switch (selection) {
             case "One correct Answer":
-
+                type = getQuestionType("One correct Answer");
                 createMultipleChoiceQuestion();
                 Switch[] isCorrect = new Switch[10];
 
@@ -314,22 +347,16 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
 
                 }
 
-
-
-
-
-                //TODO set the isCorrect switches to be selected only once or give an error dialogue when multiple selected on saveQuestion button press
-
             case "Multiple correct answers":
-
+                type = getQuestionType("Multiple correct answers");
                 createMultipleChoiceQuestion();
 
 
                 break;
             case "Text answer":
-
+                type = getQuestionType("Text answer");
                 createTextQuestion();
-
+//TODO fix bug when saving text question
                 break;
 
         }
@@ -664,6 +691,10 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
 
     @Override
     public void afterTextChanged(Editable s) {
+
+    }
+
+    public void notifyUpdate() {
 
     }
 
