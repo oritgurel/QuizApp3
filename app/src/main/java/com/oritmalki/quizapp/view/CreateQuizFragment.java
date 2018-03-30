@@ -3,7 +3,6 @@ package com.oritmalki.quizapp.view;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Build;
@@ -13,7 +12,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -35,6 +33,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.oritmalki.quizapp.Data.QuestionsRepository;
 import com.oritmalki.quizapp.Data.QuizRepository;
 import com.oritmalki.quizapp.R;
@@ -43,6 +43,7 @@ import com.oritmalki.quizapp.model.Question;
 import com.oritmalki.quizapp.model.Quiz;
 import com.oritmalki.quizapp.view.QuestionFragment.QuestionFragmentListener;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,8 +55,11 @@ import java.util.List;
 public class CreateQuizFragment extends Fragment implements View.OnClickListener, OnItemSelectedListener, CompoundButton.OnCheckedChangeListener, TextWatcher {
 
     //declare layout views...
-    private static final String ARGS_QUESTION_ID = "args_question_id";
-    private static String ARGS_CURRENT_ITEM = "args_current_item";
+    public static final String ARGS_QUESTION_ID = "args_question_id";
+    public static String ARGS_CURRENT_ITEM = "args_current_item";
+    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String QUESTION_LIST = "QuestionList";
+    public final static String QUIZ_NAME = "quizName";
     private QuestionFragmentListener listener;
     private OnButtonClickListener mOnButtonClickListener;
     private Question question;
@@ -66,7 +70,6 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     SharedPreferences preferences;
     Editor editor;
     public RadioGroup rg;
-    public static boolean isInReview = false;
     public static Toast toast;
     private ImageView correct;
     private ImageView inCorrect;
@@ -80,28 +83,24 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     private ViewGroup answerButtons;
     private ViewGroup controlTitles;
     private TextView isCorrectTv;
-    int questionType;
     private LayoutInflater inflater;
     private Quiz quiz;
     private String quizName;
     private Switch[] isCorrect;
     private EditText[] inputAnswerEt;
-    private ViewGroup questionParamContainer;
     private ViewGroup questionLayout;
     public static boolean isSwitchChecked;
     private static int currentItem;
     boolean quizNameIsSet = false;
     int type;
+    public static final String QUIZ_LIST = "quizList";
+    Gson gson = new Gson();
     QuestionsRepository questionsRepository = QuestionsRepository.getInstance();
 
 
     List<Question> questionList = new ArrayList<>();
 
     Answer[] answers;
-
-
-
-
 
     public static CreateQuizFragment newInstance(int currentItem) {
         CreateQuizFragment createQuizFragment = new CreateQuizFragment();
@@ -127,6 +126,20 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         currentItem = (int) this.getArguments().get(ARGS_CURRENT_ITEM);
+        preferences = getContext().getSharedPreferences(PREFS_NAME, 0);
+        editor = preferences.edit();
+        if (preferences.getString(QUIZ_NAME, "") != "") {
+            preferences.getString(QUIZ_NAME, "");
+        }
+        if (preferences.getString(QUESTION_LIST, "") != "") {
+            preferences.getString(QUESTION_LIST, "");
+        }
+
+        if (preferences.getString(QUIZ_LIST, "") != "") {
+            preferences.getString(QUIZ_LIST, "");
+        }
+        editor.commit();
+
         //TODO save quiz data to shared preferences for persistancy
 
     }
@@ -137,7 +150,7 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        quiz = new Quiz(quizName, questionList);
+        quiz = new Quiz(preferences.getString(QUIZ_NAME, ""), getQuestListFromSharedPreferences());
 
         View view = inflater.inflate(R.layout.create_quiz_fragment_layout, container, false);
         currentItem = (int) getArguments().get(ARGS_CURRENT_ITEM);
@@ -244,7 +257,13 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
                         type = getQuestionType(typeSpinner.getSelectedItem().toString());
                         currentItem = (int) getArguments().get(ARGS_CURRENT_ITEM);
                         question = new Question(currentItem, questionText, type, answers);
+                        //get question list from shared prefs
+                        Type qlType = new TypeToken<List<Question>>() {}.getType();
+                        questionList = gson.fromJson(preferences.getString(QUESTION_LIST, ""), qlType);
                         questionList.add(question);
+                        String updateList = gson.toJson(questionList);
+                        editor.putString(QUESTION_LIST, updateList);
+                        editor.commit();
                         Toast.makeText(getContext(), "Question saved", Toast.LENGTH_SHORT).show();
                         Log.d("Question saved: ", question.toString());
                         Log.d("QuestionList", questionList.toString());
@@ -269,8 +288,11 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
 
                 break;
             case R.id.save_quiz:
-                Quiz quiz = new Quiz(quizName, questionList);
+                Quiz quiz = new Quiz(preferences.getString(QUIZ_NAME, ""),getQuestListFromSharedPreferences());
                 QuizRepository.getInstance().saveQuiz(quiz);
+
+                editor.putString(QUIZ_LIST, gson.toJson(QuizRepository.getInstance().getQuizList()));
+                editor.commit();
 //                QuizListSelectionFragment.adapter.notifyDataSetChanged();
                 QuizListSelectionFragment selectionFragment = new QuizListSelectionFragment();
                 getFragmentManager().beginTransaction().replace(R.id.total_score_container, selectionFragment).show(selectionFragment).commit();
@@ -306,7 +328,6 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         inCorrect = view.findViewById(R.id.incorrect_image);
         typeSpinner = view.findViewById(R.id.spinner_quest_type);
         createQuestionLayout = view.findViewById(R.id.create_question_layout);
-        questionParamContainer = view.findViewById(R.id.question_params_container);
         questionLayout = view.findViewById(R.id.question_layout);
         saveQuiz = view.findViewById(R.id.save_quiz);
         saveQuiz.setOnClickListener(this);
@@ -482,6 +503,8 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
 
                         if (et.getText().toString() != null && et.getText().toString().length() > 0) {
                             quizName = et.getText().toString();
+                            editor.putString(QUIZ_NAME, quizName);
+                            editor.commit();
 //                           getActivity().getActionBar().setTitle(quizName);
                             Toast.makeText(getContext(), "Created quiz: " + quizName, Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
@@ -694,6 +717,31 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
 
     public void notifyUpdate() {
 
+    }
+//convert from json to List<Question>
+    private List<Question> getQuestListFromSharedPreferences(){
+        Gson gson = new Gson();
+        List<Question> questionListFromShared = new ArrayList<>();
+        SharedPreferences sharedPref = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String jsonPreferences = sharedPref.getString(QUESTION_LIST, "");
+
+        Type type = new TypeToken<List<Question>>() {}.getType();
+        questionListFromShared = gson.fromJson(jsonPreferences, type);
+
+        return questionListFromShared;
+    }
+
+    //convert from json to List<Quiz>
+    private List<Quiz> getQuizListFromSharedPreferences(){
+        Gson gson = new Gson();
+        List<Quiz> quizListFromShared = new ArrayList<>();
+        SharedPreferences sharedPref = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String jsonPreferences = sharedPref.getString(QUIZ_LIST, "");
+
+        Type type = new TypeToken<List<Quiz>>() {}.getType();
+        quizListFromShared = gson.fromJson(jsonPreferences, type);
+
+        return quizListFromShared;
     }
 
 }

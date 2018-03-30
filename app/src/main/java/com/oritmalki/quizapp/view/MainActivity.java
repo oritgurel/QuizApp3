@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
 
         switch (view.getId()) {
             case R.id.next_but:
+               currPos = viewPager.getCurrentItem();
                 if (currPos != viewPager.getAdapter().getCount()) {
                     viewPager.setCurrentItem(currPos + 1, true);
                 }
@@ -137,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
                 }
                 break;
             case R.id.prev_but:
+                currPos = viewPager.getCurrentItem();
                 if (currPos != 0) {
                     viewPager.setCurrentItem(currPos - 1, true);
                     if (toast != null) {
@@ -145,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
                 }
                 break;
             case R.id.review_answers:
+                QuestionFragment.isInReview = true;
                 viewPager.setCurrentItem(currPos - 1, true);
                 break;
 

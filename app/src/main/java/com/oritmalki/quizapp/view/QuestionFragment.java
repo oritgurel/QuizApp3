@@ -101,7 +101,14 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         int questionId = getArguments().getInt(ARGS_QUESTION_ID);
+        preferences = getContext().getSharedPreferences(CreateQuizFragment.PREFS_NAME, 0);
+        editor = preferences.edit();
+        if (preferences.getString(CreateQuizFragment.QUIZ_NAME, "") != "") {
+//            editor.
+        }
+
         this.question = QuestionsRepository.getInstance().getQuestion(questionId);
+
     }
 
 
