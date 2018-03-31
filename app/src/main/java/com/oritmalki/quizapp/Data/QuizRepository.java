@@ -30,12 +30,13 @@ public class QuizRepository {
         quizTreeMap.put(questions.getQuizName(), questions);
     }
 
-    public Quiz getQuiz(String questionListName) {
-        return quizTreeMap.get(quizTreeMap.get(questionListName));
+    public Quiz getQuiz(String quizName) {
+        return quizTreeMap.get(quizTreeMap.get(quizName));
     }
 
     public List<Quiz> getQuizList() {
         return new ArrayList<>(quizTreeMap.values());
     }
+
 }
 

@@ -1,5 +1,6 @@
 package com.oritmalki.quizapp.view;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -10,11 +11,17 @@ import android.widget.FrameLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.oritmalki.quizapp.Data.GenerateData;
 import com.oritmalki.quizapp.Data.QuestionsRepository;
+import com.oritmalki.quizapp.Data.QuizRepository;
 import com.oritmalki.quizapp.R;
+import com.oritmalki.quizapp.model.Answer;
 import com.oritmalki.quizapp.model.Question;
 import com.oritmalki.quizapp.model.Quiz;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,11 +39,16 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
     static Bundle savedInstanceState;
     private List<Quiz> listOfQuizes = new ArrayList<>();
     public static int questionListId = 0;
-    public static final String QUESTIONS_LIST_KEY = "Questions_List";
+    public static final String QUIZ_KEY = "Questions_List";
     public static final String TO_CREATE_QUIZ_FRAGMENT = "to_create_quiz_fragment";
     List<CreateQuizFragment> createQuizFragments;
     QuestionsPagerAdapter adapter;
-    int currPos;
+    SharedPreferences preferences;
+    SharedPreferences.Editor editor;
+    Gson gson = new Gson();
+    Type type = new TypeToken<List<Quiz>>() {}.getType();
+    List<Quiz> quizList;
+    public static Quiz selectedQuiz;
 
 
 
@@ -45,7 +57,8 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         viewPager = findViewById(R.id.view_pager);
-
+        preferences = getApplicationContext().getSharedPreferences(CreateQuizFragment.PREFS_NAME, 0);
+        editor = preferences.edit();
 
 
         savedInstanceState = this.savedInstanceState;
@@ -54,21 +67,36 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
 
         if (getIntent().getExtras() != null) {
 
-            if (getIntent().getExtras().containsKey(TO_CREATE_QUIZ_FRAGMENT)) {
-                boolean toCreateQuiz = (boolean) getIntent().getExtras().getBoolean(TO_CREATE_QUIZ_FRAGMENT);
+            if (getIntent().getExtras().containsKey(FinalScoreFragment.CALLING_ACTIVITY)) {
+
+                //if got in here from "try again", reset all answers (uncheck) and score
+                if (getIntent().getExtras().containsKey(FinalScoreFragment.CALLING_ACTIVITY)) {
+                    if (getIntent().getExtras().getString(FinalScoreFragment.CALLING_ACTIVITY).equals("FinalScoreF")) {
+                        selectedQuiz = (Quiz) getIntent().getExtras().getSerializable(MainActivity.QUIZ_KEY);
+                        for (Question question : selectedQuiz.getQuestions()) {
+                            question = selectedQuiz.getQuestions().get(question.getId());
+                            question.setScore(0);
+                            for (Answer answer : question.getAnswers()) {
+                                answer.setChecked(false);
+                            }
+                        }
+                    }
+                }
+            } else if (getIntent().getExtras().containsKey(TO_CREATE_QUIZ_FRAGMENT)) {
+                boolean toCreateQuiz = getIntent().getExtras().getBoolean(TO_CREATE_QUIZ_FRAGMENT);
                 if (toCreateQuiz) {
 
                     //attach creation fragment to pagerAdapter
                     initViewPagerWithCreateQuiz();
                 }
-
             } else {
-                Quiz selectedQuiz = (Quiz) getIntent().getExtras().getSerializable(QUESTIONS_LIST_KEY);
+                selectedQuiz = (Quiz) getIntent().getExtras().getSerializable(WelcomeActivity.QUIZ_KEY);
 
                 if (selectedQuiz != null) {
                     questionList = selectedQuiz.getQuestions();
                 }
 
+                //save to repository for persistance
                 if (questionList != null) {
                     for (Question question : questionList) {
                         QuestionsRepository.getInstance().saveQuestion(question);
@@ -94,13 +122,18 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
                     }
                 }
             }
+            }
         }
-    }
+
 
 
     public void initViewPagerWithQuizQuestions() {
 
-        List<Question> questions = QuestionsRepository.getInstance().getQuestions();
+        //get quizzes from shared prefs
+        quizList = gson.fromJson(preferences.getString(CreateQuizFragment.QUIZ_LIST, ""), type);
+        List<Question> questions = selectedQuiz.getQuestions();
+        QuizRepository.getInstance().saveQuiz(new Quiz(selectedQuiz.getQuizName(), questions));
+//        List<Question> questions = QuestionsRepository.getInstance().getQuestions();
         List<QuestionFragment> questionFragments = new ArrayList<>();
         for (Question question : questions) {
             questionFragments.add(QuestionFragment.newInstance(question.getId()));
@@ -116,16 +149,17 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
        createQuizFragments = new ArrayList<>();
        List<Question> questionList = new ArrayList<>();
 
-        createQuizFragments.add(CreateQuizFragment.newInstance(currPos));
+        createQuizFragments.add(CreateQuizFragment.newInstance(viewPager.getCurrentItem()));
         QuestionsPagerAdapter adapter = new QuestionsPagerAdapter(getSupportFragmentManager(), createQuizFragments);
         viewPager.setAdapter(adapter);
-        currPos = viewPager.getCurrentItem();
+
     }
 
 
 
     @Override
     public void onButtonClicked(View view) {
+        int currPos;
 
         switch (view.getId()) {
             case R.id.next_but:
@@ -136,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
                 if (toast != null) {
                     toast.cancel();
                 }
+
                 break;
             case R.id.prev_but:
                 currPos = viewPager.getCurrentItem();
@@ -147,16 +182,25 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
                 }
                 break;
             case R.id.review_answers:
+                currPos = viewPager.getCurrentItem();
                 QuestionFragment.isInReview = true;
                 viewPager.setCurrentItem(currPos - 1, true);
                 break;
 
             case R.id.next_create_butt:
+                //TODO if question have'nt been saved, disable next butt and show dialog
                 currPos = viewPager.getCurrentItem();
-                createQuizFragments.add(CreateQuizFragment.newInstance(currPos+1));
-                viewPager.getAdapter().notifyDataSetChanged();
+                //if question list has more items than view pager
+//                Type type = new TypeToken<List<Question>>() {}.getType();
+//                questionList = gson.fromJson(preferences.getString(CreateQuizFragment.QUESTION_LIST, ""), type);
+//                if (questionList.size() <= currPos) {
+//                    MainActivity.viewPager.setCurrentItem(currPos + 1, true);
+//                } else if (questionList.size() > currPos){
+                    createQuizFragments.add(CreateQuizFragment.newInstance(currPos + 1));
+                    viewPager.getAdapter().notifyDataSetChanged();
 
-                MainActivity.viewPager.setCurrentItem(currPos + 1, true);
+                    MainActivity.viewPager.setCurrentItem(currPos + 1, true);
+//                }
 
 
                 break;

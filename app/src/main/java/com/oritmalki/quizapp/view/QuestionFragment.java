@@ -29,11 +29,16 @@ import android.widget.RadioGroup.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.oritmalki.quizapp.Data.QuestionsRepository;
+import com.oritmalki.quizapp.Data.QuizRepository;
 import com.oritmalki.quizapp.R;
 import com.oritmalki.quizapp.model.Answer;
 import com.oritmalki.quizapp.model.Question;
+import com.oritmalki.quizapp.model.Quiz;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -68,14 +73,17 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     public static final String INDEX_OF_CHECKED_BUTTON_KEY = "IndexOfCheckedButton";
     public static int INDEX_OF_CHECKED_BUTTON = -1;
     public RadioGroup rg;
-    public static boolean isInReview = false;
+    public static boolean isInReview;
     public static Toast toast;
     private ImageView correct;
     private ImageView inCorrect;
+    Gson gson = new Gson();
 
 
-
-    private List<Question> questions = QuestionsRepository.getInstance().getQuestions();
+//    private List<Quiz> quizList;
+//    private Quiz quiz;
+    private List<Question> questions = new ArrayList<>(QuestionsRepository.getInstance().getQuestions());
+//    public final static String SELECTED_QUIZ = "selected_quiz";
 
     public static QuestionFragment newInstance(int questionId) {
         QuestionFragment questionFragment = new QuestionFragment();
@@ -101,14 +109,23 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         int questionId = getArguments().getInt(ARGS_QUESTION_ID);
-        preferences = getContext().getSharedPreferences(CreateQuizFragment.PREFS_NAME, 0);
-        editor = preferences.edit();
-        if (preferences.getString(CreateQuizFragment.QUIZ_NAME, "") != "") {
-//            editor.
-        }
+//        isInReview = getActivity().getIntent().getExtras().getBoolean(WelcomeActivity.IS_IN_REVIEW);
+
+        //get selected quiz from intent
+//        quiz = (Quiz) getActivity().getIntent().getExtras().getSerializable(WelcomeActivity.QUIZ_KEY);
+//        questions = quiz.getQuestions();
+
+//        //save selected quiz in shared prefs
+//        preferences = getContext().getSharedPreferences(CreateQuizFragment.PREFS_NAME, 0);
+//        editor = preferences.edit();
+//        editor.putString(CreateQuizFragment.QUIZ_LIST, gson.toJson(quiz));
+//        editor.commit();
+//
+//        //get current question from shared prefs quiz
+//        Type type = new TypeToken<List<Quiz>>() {}.getType();
+//        quizList = gson.fromJson(preferences.getString(CreateQuizFragment.QUIZ_LIST, ""), type);
 
         this.question = QuestionsRepository.getInstance().getQuestion(questionId);
-
     }
 
 

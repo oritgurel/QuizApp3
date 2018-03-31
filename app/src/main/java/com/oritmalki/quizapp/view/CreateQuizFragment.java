@@ -90,8 +90,8 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     private EditText[] inputAnswerEt;
     private ViewGroup questionLayout;
     public static boolean isSwitchChecked;
-    private static int currentItem;
-    boolean quizNameIsSet = false;
+//    private int currentItem;
+    public static boolean quizNameIsSet;
     int type;
     public static final String QUIZ_LIST = "quizList";
     Gson gson = new Gson();
@@ -125,7 +125,8 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        currentItem = (int) this.getArguments().get(ARGS_CURRENT_ITEM);
+        int currentItem = (int) this.getArguments().get(ARGS_CURRENT_ITEM);
+//        int currentPos = MainActivity.viewPager.getCurrentItem();
         preferences = getContext().getSharedPreferences(PREFS_NAME, 0);
         editor = preferences.edit();
         if (preferences.getString(QUIZ_NAME, "") != "") {
@@ -153,10 +154,13 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         quiz = new Quiz(preferences.getString(QUIZ_NAME, ""), getQuestListFromSharedPreferences());
 
         View view = inflater.inflate(R.layout.create_quiz_fragment_layout, container, false);
-        currentItem = (int) getArguments().get(ARGS_CURRENT_ITEM);
+        int currentItem = (int) getArguments().get(ARGS_CURRENT_ITEM);
+        int currentPos = MainActivity.viewPager.getCurrentItem();
 
-        if (quizNameIsSet ==false && currentItem == 0) {
+        if (quizNameIsSet == false && currentPos == 0) {
             setQuizNameDialog();
+            editor.putString(QUESTION_LIST, "");
+            editor.commit();
             quizNameIsSet = true;
 
         }
@@ -255,18 +259,24 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
                     else {
                         //save question
                         type = getQuestionType(typeSpinner.getSelectedItem().toString());
-                        currentItem = (int) getArguments().get(ARGS_CURRENT_ITEM);
-                        question = new Question(currentItem, questionText, type, answers);
-                        //get question list from shared prefs
+//                        currentItem = (int) getArguments().get(ARGS_CURRENT_ITEM);
+                        question = new Question(MainActivity.viewPager.getCurrentItem(), questionText, type, answers);
+                        //if this is a new question for edited quiz, get question list from shared prefs, else make new questions list and update shared prefs
                         Type qlType = new TypeToken<List<Question>>() {}.getType();
-                        questionList = gson.fromJson(preferences.getString(QUESTION_LIST, ""), qlType);
-                        questionList.add(question);
-                        String updateList = gson.toJson(questionList);
-                        editor.putString(QUESTION_LIST, updateList);
-                        editor.commit();
-                        Toast.makeText(getContext(), "Question saved", Toast.LENGTH_SHORT).show();
-                        Log.d("Question saved: ", question.toString());
-                        Log.d("QuestionList", questionList.toString());
+                        String qlFromSharedPrefs = preferences.getString(QUESTION_LIST, "");
+                        if (!qlFromSharedPrefs.equals("")) {
+                            questionList = gson.fromJson(qlFromSharedPrefs, qlType);
+                            Log.d("QuestionList from gson",questionList.toString());
+                        }
+                            questionList.add(question);
+                            String updateList = gson.toJson(questionList);
+                            editor.putString(QUESTION_LIST, updateList);
+                            editor.commit();
+                            Toast.makeText(getContext(), "Question saved", Toast.LENGTH_SHORT).show();
+                            Log.d("Question saved: ", question.toString());
+                            Log.d("QuestionList", questionList.toString());
+                            saveQuestion.setEnabled(false);
+                            nextCreateBut.setEnabled(true);
 
                         //TODO add another button for finish - that will lead to the list of quizes with the new one updated (add the quiz to the quiz list and go to list fragment
                 }
@@ -331,9 +341,11 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         questionLayout = view.findViewById(R.id.question_layout);
         saveQuiz = view.findViewById(R.id.save_quiz);
         saveQuiz.setOnClickListener(this);
+        saveQuestion.setEnabled(true);
+        nextCreateBut.setEnabled(false);
 
-
-        questionET.setHint(currentItem+1 + ". Enter question text here");
+        int currentItem = (int) getArguments().get(ARGS_CURRENT_ITEM);
+        questionET.setHint(currentItem + 1 + ". Enter question text here");
 
 
         MainActivity.viewPager.setBackgroundColor(getResources().getColor(R.color.welcomeBkg));
@@ -662,20 +674,6 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
         return isValidInput(q);
     }
 
-//    public boolean areAllAnswersValid(String a) {
-//
-//        int countValid=0;
-//        for (int i=0; i<createQuestionLayout.getChildCount(); i++) {
-//            ViewGroup viewGroup = (ViewGroup) createQuestionLayout.getChildAt(i);
-//            EditText et = (EditText) viewGroup.getChildAt(0);
-//           if (a == et.getText().toString()) {
-//               if (isValidInput(a)) {
-//                   countValid++;
-//               }
-//           }
-//
-//        return isValidInput();
-//    }
 
     public void setSaveQuestionButtonState(String s) {
         saveQuestion.setEnabled(false);

@@ -30,8 +30,9 @@ public class WelcomeActivity extends AppCompatActivity implements WelcomFragment
     QuizListAdapterCallback quizListAdapterCallback;
     public static Quiz selectedQuiz;
     TextView startQuizTv;
-    public static final String QUESTIONS_LIST_KEY = "Questions_List";
+    public static final String QUIZ_KEY = "Quiz_Key";
     public static final String TO_CREATE_QUIZ_FRAGMENT = "to_create_quiz_fragment";
+    public static final String IS_IN_REVIEW = "isInReview_key";
 
     //TODO navigation back from start quiz screen
 
@@ -62,8 +63,10 @@ public class WelcomeActivity extends AppCompatActivity implements WelcomFragment
 
             @Override
             public void onClick(View v) {
+//                QuestionFragment.isInReview = false;
                 Intent intent = new Intent(v.getContext(), MainActivity.class);
-                intent.putExtra(QUESTIONS_LIST_KEY, (Serializable) selectedQuiz);
+                intent.putExtra(QUIZ_KEY, selectedQuiz);
+                intent.putExtra(IS_IN_REVIEW, false);
                 startActivity(intent);
             }
         });
@@ -101,6 +104,7 @@ public class WelcomeActivity extends AppCompatActivity implements WelcomFragment
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.create_quiz:
+                CreateQuizFragment.quizNameIsSet = false;
                 Intent intent = new Intent(this, MainActivity.class);
                 intent.putExtra(TO_CREATE_QUIZ_FRAGMENT, true);
                 startActivity(intent);

@@ -1,5 +1,7 @@
 package com.oritmalki.quizapp.model;
 
+import android.support.annotation.NonNull;
+
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -7,7 +9,7 @@ import java.util.Arrays;
  * Created by Orit on 31.1.2018.
  */
 
-public class Question implements Serializable {
+public class Question implements Serializable, Comparable<Question> {
 
     String question;
     Answer[] answers;
@@ -73,5 +75,12 @@ public class Question implements Serializable {
                 ", type=" + type +
                 ", id=" + id +
                 '}';
+    }
+
+
+    @Override
+    public int compareTo(@NonNull Question o) {
+
+        return 0;
     }
 }

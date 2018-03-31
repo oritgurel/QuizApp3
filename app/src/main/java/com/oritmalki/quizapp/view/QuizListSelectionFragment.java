@@ -31,15 +31,18 @@ public class QuizListSelectionFragment extends ListFragment {
 
     SharedPreferences preferences;
 
+
     GenerateData generateData = new GenerateData();
     QuizRepository quizRepository = QuizRepository.getInstance();
     public static QuizListAdapter adapter;
     SharedPreferences.Editor editor;
     Gson gson = new Gson();
+    Type type = new TypeToken<List<Quiz>>() {}.getType();
 
 
 
-    List<Quiz> quizList = new ArrayList<>(quizRepository.getQuizList());
+    List<Quiz> quizList;
+//  old:   = new ArrayList<>(quizRepository.getQuizList());
 
     QuizListAdapterCallback mCallback;
 
@@ -74,27 +77,35 @@ public class QuizListSelectionFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        generateData = new GenerateData();
+        //get list of quizzes from shared prefs
+        String quizListPrefs = preferences.getString(CreateQuizFragment.QUIZ_LIST, "");
 
+        if (!quizListPrefs.equals("null")) {
+            String jsonQuizList = gson.toJson(preferences.getString(CreateQuizFragment.QUIZ_LIST, ""));
+                quizList = gson.fromJson(jsonQuizList, type);
+        } else {
+            quizList = new ArrayList<>();
+        }
+
+        //add demo questionList to QuizRepository (short term)
         List<Question> demoQuestionList = generateData.getQuestionsData();
-
         Quiz quiz = new Quiz("Music Quiz", demoQuestionList);
-
+        quizList.add(quiz);
         quizRepository.saveQuiz(quiz);
+
+        //save changes in quizList back to shared prefs (long term)
         String jsonPrefs = gson.toJson(quizRepository.getQuizList());
         editor.putString(CreateQuizFragment.QUIZ_LIST, jsonPrefs);
         editor.commit();
 
 
-
-        Type type = new TypeToken<List<Quiz>>() {}.getType();
-
-        quizList = gson.fromJson(jsonPrefs, type);
+        //get quizList for adapter from shared prefs
+        this.quizList = gson.fromJson(jsonPrefs, type);
 
 //        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.quiz_list_selection_fragment, container, false);
         adapter = new QuizListAdapter(
 
-                getActivity(), R.id.list, quizList , mCallback);
+                getActivity(), R.id.list, this.quizList, mCallback);
         this.setListAdapter(adapter);
         adapter.notifyDataSetChanged();
 
