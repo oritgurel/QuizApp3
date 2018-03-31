@@ -37,6 +37,7 @@ public class QuizListAdapter extends ArrayAdapter<Quiz> {
         this.quizList = quizList;
     }
 
+
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(this.getContext()).inflate(R.layout.quiz_list_item, parent, false);

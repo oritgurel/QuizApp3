@@ -16,7 +16,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:singleLine">true</item>
         <item name="android:padding">5dp</item>
-        <item name="android:textSize">18dp</item>
+        <item name="android:textSize">16dp</item>
         <item name="android:layout_marginBottom">42dp</item>
     </style>
 
@@ -31,5 +31,17 @@
         <item name="android:textSize">18dp</item>
         <item name="android:layout_marginBottom">42dp</item>
     </style>
+
+    <style name="spinnerItemStyle" parent="android:Widget.TextView.SpinnerItem">
+    </style>
+
+    <style name="spinnerDropDownItemStyle" parent="android:TextAppearance.Material.Widget.TextView.SpinnerItem">
+    </style>
+    
+    <!--<style name="MyDialogAlert" parent="android:Theme_Material_Dialog_Alert">-->
+
+
+    <!--</style>-->
+
 
 </resources>

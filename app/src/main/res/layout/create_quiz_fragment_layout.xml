@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:textDirection="ltr"
+    android:layoutDirection="ltr"
+    android:layout_margin="16dp">
+
+<LinearLayout
+    android:id="@+id/question_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/question_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layoutDirection="ltr"
+            android:layout_alignParentLeft="true"
+            android:background="#70FFFFFF"
+            tools:hint="Enter question here."
+            android:textAlignment="gravity"
+            android:textDirection="firstStrong"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="32dp"
+            android:textSize="24sp"
+            android:visibility="visible"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:gravity="start"/>
+
+        </LinearLayout>
+
+
+        <TextView
+            android:id="@+id/select_question_type_prompt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select question type:"
+            android:padding="20dp"
+            android:textSize="18sp"/>
+
+        <RelativeLayout
+            android:id="@+id/question_params_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="50dp"
+            android:layout_marginLeft="20dp"
+            android:background="#ffffff"
+            android:layoutDirection="ltr"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/spinner_quest_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_gravity="left"
+                android:layout_marginVertical="5dp"
+                android:gravity="left"
+                android:spinnerMode="dropdown" />
+
+        </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbarStyle="insideInset"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+    <RelativeLayout
+        android:id="@+id/create_question_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+</RelativeLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/contol_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="24dp"
+        android:layout_gravity="bottom">
+
+        <Button
+            android:id="@+id/save_question"
+            android:theme="@style/AppTheme.ButtonHighlighted"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save Question"
+            android:textSize="16sp"
+            android:padding="10dp"
+            android:visibility="visible"
+            android:layout_marginBottom="10dp"
+            android:layout_centerHorizontal="true"
+            />
+
+        <Button
+            android:id="@+id/prev_create_but"
+            android:text="Prev"
+            android:visibility="visible"
+            android:theme="@style/AppTheme.Button"
+            android:layout_marginLeft="16dp"
+            android:layout_toLeftOf="@id/submit_but"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/next_create_butt"
+            android:text="Next"
+            android:visibility="visible"
+            android:theme="@style/AppTheme.Button"
+            android:layout_toRightOf="@id/save_question"
+            android:layout_width="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="16dp"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/save_quiz"
+            android:text="save quiz"
+            android:padding="10dp"
+            android:layout_centerHorizontal="true"
+            android:visibility="visible"
+            android:theme="@style/AppTheme.Button"
+            android:layout_marginHorizontal="16dp"
+            android:layout_below="@id/save_question"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+
+
+</LinearLayout>
+</LinearLayout>
+

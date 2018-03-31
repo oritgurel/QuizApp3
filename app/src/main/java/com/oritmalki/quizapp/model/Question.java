@@ -1,12 +1,15 @@
 package com.oritmalki.quizapp.model;
 
+import android.support.annotation.NonNull;
+
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Created by Orit on 31.1.2018.
  */
 
-public class Question implements Serializable {
+public class Question implements Serializable, Comparable<Question> {
 
     String question;
     Answer[] answers;
@@ -20,7 +23,9 @@ public class Question implements Serializable {
         this.question = question;
         this.answers = answers;
         this.id = id;
+        this.type = type;
     }
+
 
     public String getQuestion() {
         return question;
@@ -60,5 +65,22 @@ public class Question implements Serializable {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    @Override
+    public String toString() {
+        return "Question{" +
+                "question='" + question + '\'' +
+                ", answers=" + Arrays.toString(answers) +
+                ", type=" + type +
+                ", id=" + id +
+                '}';
+    }
+
+
+    @Override
+    public int compareTo(@NonNull Question o) {
+
+        return 0;
     }
 }

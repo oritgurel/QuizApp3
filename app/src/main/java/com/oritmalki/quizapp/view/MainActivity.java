@@ -1,5 +1,6 @@
 package com.oritmalki.quizapp.view;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -10,19 +11,23 @@ import android.widget.FrameLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.oritmalki.quizapp.Data.GenerateData;
 import com.oritmalki.quizapp.Data.QuestionsRepository;
+import com.oritmalki.quizapp.Data.QuizRepository;
 import com.oritmalki.quizapp.R;
+import com.oritmalki.quizapp.model.Answer;
 import com.oritmalki.quizapp.model.Question;
 import com.oritmalki.quizapp.model.Quiz;
-import com.oritmalki.quizapp.view.QuestionFragment.OnButtonClickListener;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.oritmalki.quizapp.view.QuestionFragment.toast;
 
-public class MainActivity extends AppCompatActivity implements OnButtonClickListener {
+public class MainActivity extends AppCompatActivity implements OnButtonClickListener, QuizListAdapterCallback {
 
     protected static ViewPager viewPager;
 
@@ -34,7 +39,17 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
     static Bundle savedInstanceState;
     private List<Quiz> listOfQuizes = new ArrayList<>();
     public static int questionListId = 0;
-    public static final String QUESTIONS_LIST_KEY = "Questions_List";
+    public static final String QUIZ_KEY = "Questions_List";
+    public static final String TO_CREATE_QUIZ_FRAGMENT = "to_create_quiz_fragment";
+    List<CreateQuizFragment> createQuizFragments;
+    QuestionsPagerAdapter adapter;
+    SharedPreferences preferences;
+    SharedPreferences.Editor editor;
+    Gson gson = new Gson();
+    Type type = new TypeToken<List<Quiz>>() {}.getType();
+    List<Quiz> quizList;
+    public static Quiz selectedQuiz;
+
 
 
     @Override
@@ -42,81 +57,123 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         viewPager = findViewById(R.id.view_pager);
-
+        preferences = getApplicationContext().getSharedPreferences(CreateQuizFragment.PREFS_NAME, 0);
+        editor = preferences.edit();
 
 
         savedInstanceState = this.savedInstanceState;
 
-        //create an fragment which prompts the user to create a questions list or select from existing questionLists (if available). This should be in the welcome activity
-        //TODO if user chooses to create a list of question ->
-        //TODO create an activity with a questionFragment which prompts the user to insert the questions and the answers, like a form, triggered by a method "createQuestionList"
-        //TODO to this form, add a "select type of question" at the top (add another viewGroup on top in editFragment and make it invisible when the question type is selected
-
         //Here is where the data is inserted.
 
         if (getIntent().getExtras() != null) {
-            Quiz selectedQuiz = (Quiz) getIntent().getExtras().getSerializable(QUESTIONS_LIST_KEY);
 
-            if (selectedQuiz != null) {
-                questionList = selectedQuiz.getQuestions();
-            }
+            if (getIntent().getExtras().containsKey(FinalScoreFragment.CALLING_ACTIVITY)) {
 
-            if (questionList != null) {
-                for (Question question : questionList) {
-                    QuestionsRepository.getInstance().saveQuestion(question);
+                //if got in here from "try again", reset all answers (uncheck) and score
+                if (getIntent().getExtras().containsKey(FinalScoreFragment.CALLING_ACTIVITY)) {
+                    if (getIntent().getExtras().getString(FinalScoreFragment.CALLING_ACTIVITY).equals("FinalScoreF")) {
+                        selectedQuiz = (Quiz) getIntent().getExtras().getSerializable(MainActivity.QUIZ_KEY);
+                        for (Question question : selectedQuiz.getQuestions()) {
+                            question = selectedQuiz.getQuestions().get(question.getId());
+                            question.setScore(0);
+                            for (Answer answer : question.getAnswers()) {
+                                answer.setChecked(false);
+                            }
+                        }
+                    }
+                }
+            } else if (getIntent().getExtras().containsKey(TO_CREATE_QUIZ_FRAGMENT)) {
+                boolean toCreateQuiz = getIntent().getExtras().getBoolean(TO_CREATE_QUIZ_FRAGMENT);
+                if (toCreateQuiz) {
+
+                    //attach creation fragment to pagerAdapter
+                    initViewPagerWithCreateQuiz();
+                }
+            } else {
+                selectedQuiz = (Quiz) getIntent().getExtras().getSerializable(WelcomeActivity.QUIZ_KEY);
+
+                if (selectedQuiz != null) {
+                    questionList = selectedQuiz.getQuestions();
                 }
 
-
-                initViewPager();
-                frameLayout = findViewById(R.id.total_score_container);
-
-                if (findViewById(R.id.total_score_container) != null) {
-
-
-                    // However, if we're being restored from a previous state,
-                    // then we don't need to do anything and should return or else
-                    // we could end up with overlapping fragments.
-                    if (savedInstanceState != null) {
-                        return;
+                //save to repository for persistance
+                if (questionList != null) {
+                    for (Question question : questionList) {
+                        QuestionsRepository.getInstance().saveQuestion(question);
                     }
 
+                    //attach question fragment to pagerAdapter
+                    initViewPagerWithQuizQuestions();
+
+                    frameLayout = findViewById(R.id.total_score_container);
+
+                    if (findViewById(R.id.total_score_container) != null) {
+
+
+                        // However, if we're being restored from a previous state,
+                        // then we don't need to do anything and should return or else
+                        // we could end up with overlapping fragments.
+                        if (savedInstanceState != null) {
+                            return;
+                        }
+
 //            FinalScoreFragment finalScoreFragment = new FinalScoreFragment();
-//            getSupportFragmentManager().beginTransaction().add(R.id.total_score_fragment, finalScoreFragment).commit();
+//            getSupportFragmentManager().beginTransaction().add(R.id.final_score_fragment, finalScoreFragment).commit();
+                    }
                 }
             }
+            }
         }
+
+
+
+    public void initViewPagerWithQuizQuestions() {
+
+        //get quizzes from shared prefs
+        quizList = gson.fromJson(preferences.getString(CreateQuizFragment.QUIZ_LIST, ""), type);
+        List<Question> questions = selectedQuiz.getQuestions();
+        QuizRepository.getInstance().saveQuiz(new Quiz(selectedQuiz.getQuizName(), questions));
+//        List<Question> questions = QuestionsRepository.getInstance().getQuestions();
+        List<QuestionFragment> questionFragments = new ArrayList<>();
+        for (Question question : questions) {
+            questionFragments.add(QuestionFragment.newInstance(question.getId()));
+
+        }
+
+        adapter = new QuestionsPagerAdapter(getSupportFragmentManager(), questionFragments);
+        viewPager.setAdapter(adapter);
     }
 
+    public void initViewPagerWithCreateQuiz() {
 
-    public void initViewPager() {
+       createQuizFragments = new ArrayList<>();
+       List<Question> questionList = new ArrayList<>();
 
-        List<Question> questions = QuestionsRepository.getInstance().getQuestions();
-        List<QuestionFragment> fragments = new ArrayList<>();
-        for (Question question : questions) {
-            fragments.add(QuestionFragment.newInstance(question.getId()));
-
-        }
-
-        QuestionsPagerAdapter adapter = new QuestionsPagerAdapter(getSupportFragmentManager(), fragments);
+        createQuizFragments.add(CreateQuizFragment.newInstance(viewPager.getCurrentItem()));
+        QuestionsPagerAdapter adapter = new QuestionsPagerAdapter(getSupportFragmentManager(), createQuizFragments);
         viewPager.setAdapter(adapter);
+
     }
 
 
 
     @Override
     public void onButtonClicked(View view) {
+        int currPos;
 
-        int currPos = viewPager.getCurrentItem();
         switch (view.getId()) {
             case R.id.next_but:
+               currPos = viewPager.getCurrentItem();
                 if (currPos != viewPager.getAdapter().getCount()) {
                     viewPager.setCurrentItem(currPos + 1, true);
                 }
                 if (toast != null) {
                     toast.cancel();
                 }
+
                 break;
             case R.id.prev_but:
+                currPos = viewPager.getCurrentItem();
                 if (currPos != 0) {
                     viewPager.setCurrentItem(currPos - 1, true);
                     if (toast != null) {
@@ -125,7 +182,32 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
                 }
                 break;
             case R.id.review_answers:
+                currPos = viewPager.getCurrentItem();
+                QuestionFragment.isInReview = true;
                 viewPager.setCurrentItem(currPos - 1, true);
+                break;
+
+            case R.id.next_create_butt:
+                //TODO if question have'nt been saved, disable next butt and show dialog
+                currPos = viewPager.getCurrentItem();
+                //if question list has more items than view pager
+//                Type type = new TypeToken<List<Question>>() {}.getType();
+//                questionList = gson.fromJson(preferences.getString(CreateQuizFragment.QUESTION_LIST, ""), type);
+//                if (questionList.size() <= currPos) {
+//                    MainActivity.viewPager.setCurrentItem(currPos + 1, true);
+//                } else if (questionList.size() > currPos){
+                    createQuizFragments.add(CreateQuizFragment.newInstance(currPos + 1));
+                    viewPager.getAdapter().notifyDataSetChanged();
+
+                    MainActivity.viewPager.setCurrentItem(currPos + 1, true);
+//                }
+
+
+                break;
+            case R.id.prev_create_but:
+                currPos = viewPager.getCurrentItem();
+                MainActivity.viewPager.setCurrentItem(currPos - 1, true);
+
                 break;
         }
     }
@@ -133,20 +215,24 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        for (int i = 0; i < questionList.size(); i++) {
-            for (int j = 0; j < QuestionsRepository.getInstance().getQuestion(i).getAnswers().length; j++) {
 
-                if (QuestionsRepository.getInstance().getQuestion(i).getAnswers()[j].isChecked()) {
-                    ViewGroup innerQuestionLayout = findViewById(R.id.inner_question_layout);
-                    if (innerQuestionLayout.getChildAt(3) != null) {
-                        RadioGroup radioGroup = (RadioGroup) innerQuestionLayout.getChildAt(3);
+        if (getFragmentManager().getFragment(outState, "QuestionFragment") != null) {
 
-                        RadioButton radioButton = (RadioButton) radioGroup.getChildAt(j);
-                        if (radioButton != null) {
-                        toast.cancel();
-                        outState.putBoolean("isButtonChecked", ((RadioButton) radioGroup.getChildAt(j)).isChecked());
-                        outState.putBoolean("isInReview", QuestionFragment.isInReview);
-                    }
+            for (int i = 0; i < questionList.size(); i++) {
+                for (int j = 0; j < QuestionsRepository.getInstance().getQuestion(i).getAnswers().length; j++) {
+
+                    if (QuestionsRepository.getInstance().getQuestion(i).getAnswers()[j].isChecked()) {
+                        ViewGroup innerQuestionLayout = findViewById(R.id.inner_question_layout);
+                        if (innerQuestionLayout.getChildAt(3) != null) {
+                            RadioGroup radioGroup = (RadioGroup) innerQuestionLayout.getChildAt(3);
+
+                            RadioButton radioButton = (RadioButton) radioGroup.getChildAt(j);
+                            if (radioButton != null) {
+                                toast.cancel();
+                                outState.putBoolean("isButtonChecked", ((RadioButton) radioGroup.getChildAt(j)).isChecked());
+                                outState.putBoolean("isInReview", QuestionFragment.isInReview);
+                            }
+                        }
                     }
                 }
             }
@@ -156,18 +242,26 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        QuestionFragment.isInReview = savedInstanceState.getBoolean("isInReview");
-        for (int i = 0; i < questionList.size(); i++) {
-            for (int j = 0; j < QuestionsRepository.getInstance().getQuestion(i).getAnswers().length; j++) {
-                ViewGroup innerQuestionLayout = findViewById(R.id.inner_question_layout);
-                if (innerQuestionLayout.getChildAt(3) != null) {
-                    RadioGroup radioGroup = (RadioGroup) innerQuestionLayout.getChildAt(3);
 
-                    RadioButton radioButton = (RadioButton) radioGroup.getChildAt(j);
-                    savedInstanceState.getBoolean("isButtonChecked");
+        if (getFragmentManager().getFragment(savedInstanceState, "QuestionFragment") != null) {
+            QuestionFragment.isInReview = savedInstanceState.getBoolean("isInReview");
+            for (int i = 0; i < questionList.size(); i++) {
+                for (int j = 0; j < QuestionsRepository.getInstance().getQuestion(i).getAnswers().length; j++) {
+                    ViewGroup innerQuestionLayout = findViewById(R.id.inner_question_layout);
+                    if (innerQuestionLayout.getChildAt(3) != null) {
+                        RadioGroup radioGroup = (RadioGroup) innerQuestionLayout.getChildAt(3);
 
+                        RadioButton radioButton = (RadioButton) radioGroup.getChildAt(j);
+                        savedInstanceState.getBoolean("isButtonChecked");
+
+                    }
                 }
             }
         }
+    }
+
+    @Override
+    public void onAdapterClick(Quiz quiz) {
+
     }
 }

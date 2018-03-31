@@ -5,6 +5,7 @@
           android:versionName="1.0" >
 
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
     <uses-sdk
         android:minSdkVersion="15"
@@ -19,12 +20,14 @@
         android:testOnly="true"
         android:theme="@style/AppTheme" >
         <activity android:name="com.oritmalki.quizapp.view.MainActivity" android:configChanges="orientation"
+                  android:windowSoftInputMode="adjustPan|adjustResize" >
                   android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        <activity android:name="com.oritmalki.quizapp.view.WelcomeActivity" >
+        <activity android:name="com.oritmalki.quizapp.view.WelcomeActivity"
+            android:windowSoftInputMode="adjustPan|adjustResize|stateHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
