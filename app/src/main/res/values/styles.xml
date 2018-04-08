@@ -1,17 +1,35 @@
-<resources xmlns:tools="http://schemas.android.com/tools" xmlns:android="urn:oasis:names:tc:xliff:document:1.2">
+<resources xmlns:android="urn:oasis:names:tc:xliff:document:1.2" xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
-      <style name="AppTheme" parent="Base.Theme.AppCompat.Light">
+    <style name="AppTheme" parent="Base.Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:actionBarStyle">@style/ActionBar</item>
+
+
     </style>
-    
+
+    <style name="ActionBar" parent="@android:style/Widget.ActionBar">
+        <item name="android:titleTextStyle">@style/ActionBar.Title</item>
+        <item name="android:subtitleTextStyle">@style/ActionBar.Subtitle</item>
+        ...
+    </style>
+
+    <style name="ActionBar.Title">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="ActionBar.Subtitle">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+
     <style name="AppTheme.Button" parent="Widget.AppCompat.Button">
         <item name="android:radius">2dp</item>
         <item name="android:textColor">#FFFFFF</item>
-        <item name="android:colorButtonNormal" tools:targetApi="lollipop">#A86594</item>
+        <item name="android:colorButtonNormal" tools:targetApi="lollipop">@color/purple</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:singleLine">true</item>
@@ -23,7 +41,7 @@
     <style name="AppTheme.ButtonHighlighted" parent="Widget.AppCompat.Button">
         <item name="android:radius">2dp</item>
         <item name="android:textColor">#FFFFFF</item>
-        <item name="android:colorButtonNormal" tools:targetApi="lollipop">#FFAEEB</item>
+        <item name="android:colorButtonNormal" tools:targetApi="lollipop">@color/pink</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:singleLine">true</item>
@@ -32,12 +50,10 @@
         <item name="android:layout_marginBottom">42dp</item>
     </style>
 
-    <style name="spinnerItemStyle" parent="android:Widget.TextView.SpinnerItem">
-    </style>
+    <style name="spinnerItemStyle" parent="android:Widget.TextView.SpinnerItem"></style>
 
-    <style name="spinnerDropDownItemStyle" parent="android:TextAppearance.Material.Widget.TextView.SpinnerItem">
-    </style>
-    
+    <style name="spinnerDropDownItemStyle" parent="android:TextAppearance.Material.Widget.TextView.SpinnerItem"></style>
+
     <!--<style name="MyDialogAlert" parent="android:Theme_Material_Dialog_Alert">-->
 
 

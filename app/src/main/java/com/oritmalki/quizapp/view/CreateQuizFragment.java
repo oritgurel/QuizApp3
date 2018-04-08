@@ -1,8 +1,10 @@
 package com.oritmalki.quizapp.view;
 
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Build;
@@ -12,6 +14,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -25,6 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
@@ -125,8 +129,8 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getActivity().setTitle("Create Quiz");
         int currentItem = (int) this.getArguments().get(ARGS_CURRENT_ITEM);
-//        int currentPos = MainActivity.viewPager.getCurrentItem();
         preferences = getContext().getSharedPreferences(PREFS_NAME, 0);
         editor = preferences.edit();
         if (preferences.getString(QUIZ_NAME, "") != "") {
@@ -198,76 +202,68 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
                 //get question text
                 if (questionET.getText() != null && questionET.getText().length() > 0) {
                     questionText = questionET.getText().toString();
-                } else {
 
-                    questionET.requestFocus();
-                    questionET.setError("Please fill in question text.");
-                }
+                    //get answers texts and correctness
 
+                    try {
+                        answers = new Answer[inputAnswerEt.length];
 
-                //get answers texts and correctness
+                    for (int i=0; i<inputAnswerEt.length; i++) {
 
-                try {
-                    answers = new Answer[inputAnswerEt.length];
-                } catch (NullPointerException e) {
-                    Toast.makeText(getContext(), "Please add answers to your question", Toast.LENGTH_SHORT).show();
-                }
+                        //if text fields are not empty
 
-                for (int i=0; i<inputAnswerEt.length; i++) {
-
-                    //if text fields are not empty
-                    if (inputAnswerEt[i].getText() != null && inputAnswerEt[i].getText().length() > 0) {
+                        if (inputAnswerEt[i].getText() != null && inputAnswerEt[i].getText().length() > 0) {
 
 
-                        answers[i] = new Answer(inputAnswerEt[i].getText().toString(), isCorrect[i].isChecked());
+                            answers[i] = new Answer(inputAnswerEt[i].getText().toString(), isCorrect[i].isChecked());
 
 
-                    } else {
-                        inputAnswerEt[i].setError("Please fill answer text");
-                        break;
-                    }
-
-                }
-
-
-                //check if no correct answer was switched
-                int countOff = 0;
-                int countError = 0;
-                for (int i=0; i<inputAnswerEt.length; i++) {
-                    //get total errors
-                    if (inputAnswerEt[i].getError() !=null && inputAnswerEt[i].getError().equals("Please fill answer text")) {
-                        countError++;
-                    } if (questionET.getError() != null && questionET.getError().equals("Please fill answer text")) {
-                    }
-                    //get total unchecked switches
-                    if (isCorrect[i].isChecked() == false) {
-                        countOff++;
-                    }
-
-                }
-
-                    //if not all fields have text - break operation and don't save
-                    if (countError > 0) {
-                        Toast.makeText(getContext(), "Must fill all fields", Toast.LENGTH_SHORT).show();
-                    }
-
-                    else if (countOff == inputAnswerEt.length) {
-                        //display error dialog
-                    atLeastOneCorrectAllowedDialog();
-                }
-
-                    else {
-                        //save question
-                        type = getQuestionType(typeSpinner.getSelectedItem().toString());
-//                        currentItem = (int) getArguments().get(ARGS_CURRENT_ITEM);
-                        question = new Question(MainActivity.viewPager.getCurrentItem(), questionText, type, answers);
-                        //if this is a new question for edited quiz, get question list from shared prefs, else make new questions list and update shared prefs
-                        Type qlType = new TypeToken<List<Question>>() {}.getType();
-                        String qlFromSharedPrefs = preferences.getString(QUESTION_LIST, "");
-                        if (!qlFromSharedPrefs.equals("")) {
-                            questionList = gson.fromJson(qlFromSharedPrefs, qlType);
-                            Log.d("QuestionList from gson",questionList.toString());
+                        } else {
+                            inputAnswerEt[i].setError("Please fill answer text");
+                            break;
                         }
+                    }
+
+                        //check if no correct answer was switched
+                        int countOff = 0;
+                        int countError = 0;
+                        for (int i=0; i<inputAnswerEt.length; i++) {
+                            //get total errors
+                            if (inputAnswerEt[i].getError() !=null && inputAnswerEt[i].getError().equals("Please fill answer text")) {
+                                countError++;
+                            } if (questionET.getError() != null && questionET.getError().equals("Please fill answer text")) {
+                            }
+                            //get total unchecked switches
+                            if (isCorrect[i].isChecked() == false) {
+                                countOff++;
+                            }
+
+                        }
+
+                        //if not all fields have text - break operation and don't save
+                        if (countError > 0) {
+                            Toast.makeText(getContext(), "Must fill all fields", Toast.LENGTH_SHORT).show();
+                        }
+
+                        else if (countOff == inputAnswerEt.length) {
+                            //display error dialog
+                            atLeastOneCorrectAllowedDialog();
+                        }
+
+
+                        else {
+                            //save question
+                            type = getQuestionType(typeSpinner.getSelectedItem().toString());
+//                        currentItem = (int) getArguments().get(ARGS_CURRENT_ITEM);
+                            question = new Question(MainActivity.viewPager.getCurrentItem(), questionText, type, answers);
+                            //if this is a new question for edited quiz, get question list from shared prefs, else make new questions list and update shared prefs
+                            Type qlType = new TypeToken<List<Question>>() {
+                            }.getType();
+                            String qlFromSharedPrefs = preferences.getString(QUESTION_LIST, "");
+                            if (!qlFromSharedPrefs.equals("")) {
+                                questionList = gson.fromJson(qlFromSharedPrefs, qlType);
+                                Log.d("QuestionList from gson", questionList.toString());
+                            }
                             questionList.add(question);
                             String updateList = gson.toJson(questionList);
                             editor.putString(QUESTION_LIST, updateList);
@@ -278,8 +274,23 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
                             saveQuestion.setEnabled(false);
                             nextCreateBut.setEnabled(true);
 
-                        //TODO add another button for finish - that will lead to the list of quizes with the new one updated (add the quiz to the quiz list and go to list fragment
+                        }
+                    }
+                    catch (NullPointerException e) {
+                        Toast.makeText(getContext(), "Please add answers to your question", Toast.LENGTH_SHORT).show();
+                    }
+
+
+
+                } else {
+
+                    questionET.requestFocus();
+                    questionET.setError("Please fill in question text.");
                 }
+
+
+
+
 
                 break;
 
@@ -303,11 +314,8 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
 
                 editor.putString(QUIZ_LIST, gson.toJson(QuizRepository.getInstance().getQuizList()));
                 editor.commit();
-//                QuizListSelectionFragment.adapter.notifyDataSetChanged();
-                QuizListSelectionFragment selectionFragment = new QuizListSelectionFragment();
-                getFragmentManager().beginTransaction().replace(R.id.total_score_container, selectionFragment).show(selectionFragment).commit();
-
-
+                Intent intent = new Intent(getContext(), WelcomeActivity.class);
+                startActivity(intent);
 
             default:
                 mOnButtonClickListener.onButtonClicked(v);
@@ -478,7 +486,6 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
 
     public void setQuizNameDialog() {
 
-
         AlertDialog.Builder quizNameAlertDialog;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             quizNameAlertDialog = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Light_Dialog);
@@ -496,6 +503,7 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
                 .setView(dialogQuizNameView)
                 .setTitle("Set Quiz Name")
                 .setCancelable(false)
+                .setNegativeButton("Cancel", null)
                 .setPositiveButton("Save", null);
 
 
@@ -505,6 +513,17 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
             public void onShow(DialogInterface dialog) {
 
                 Button saveButt = d.getButton(AlertDialog.BUTTON_POSITIVE);
+                Button cancelButt = d.getButton(AlertDialog.BUTTON_NEGATIVE);
+                cancelButt.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+//                        android.support.v4.app.FragmentManager fm = getActivity().getSupportFragmentManager();
+//                        fm.beginTransaction().replace(R.id.welcome_container, new WelcomeFragment()).commit();
+                        d.dismiss();
+                        getActivity().finish();
+                    }
+                });
                 saveButt.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -649,7 +668,6 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
             }
         }
     }
-
 
 
     public void removeMultipleChoiceAnswer() {

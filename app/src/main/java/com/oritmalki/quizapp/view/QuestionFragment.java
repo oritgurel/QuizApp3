@@ -180,12 +180,6 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
 
                 }
 
-
-
-//TODO make fragment visible
-//                Intent intent = new Intent(this.getContext(), FinalScoreActivity.class);
-//                intent.putExtra("Score", finalScore);
-//                startActivity(intent);
                 break;
             default:
                 mOnButtonClickListener.onButtonClicked(v);

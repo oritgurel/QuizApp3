@@ -34,7 +34,6 @@ public class WelcomeActivity extends AppCompatActivity implements WelcomFragment
     public static final String TO_CREATE_QUIZ_FRAGMENT = "to_create_quiz_fragment";
     public static final String IS_IN_REVIEW = "isInReview_key";
 
-    //TODO navigation back from start quiz screen
 
 
     @Override

@@ -1,38 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-                android:background="@color/welcomeBkg"
-               >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/welcomeBkg">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="50sp"
-        android:text="Welcome to QuizApp!"
+        android:layout_alignParentTop="true"
         android:padding="24dp"
-        android:layout_alignParentTop="true"/>
+        android:text="Welcome to QuizApp!"
+        android:textSize="50sp" />
 
     <Button
         android:id="@+id/select_quiz"
-        android:theme="@style/AppTheme.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/select_quiz"
-        android:textSize="@dimen/page_button_text"
         android:layout_alignParentBottom="true"
         android:layout_margin="24dp"
-        />
+        android:text="@string/select_quiz"
+        android:textSize="@dimen/page_button_text"
+        android:theme="@style/AppTheme.Button" />
 
     <Button
         android:id="@+id/create_quiz"
-        android:theme="@style/AppTheme.Button"
-        android:layout_above="@id/select_quiz"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_above="@id/select_quiz"
+        android:layout_margin="24dp"
         android:text="@string/create_quiz"
         android:textSize="@dimen/page_button_text"
-        android:layout_margin="24dp"
-        />
+        android:theme="@style/AppTheme.Button" />
 
 </RelativeLayout>

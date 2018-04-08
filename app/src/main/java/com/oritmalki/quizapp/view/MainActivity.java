@@ -161,6 +161,11 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
     public void onButtonClicked(View view) {
         int currPos;
 
+        //TODO replace bottom buttons with a bottom navigation menu bar
+        //TODO saveQuiz isn't enables till question list is not empty (show toast "question list is empty")
+        //TODO convert save quiz butt into match parent width one
+        //TODO set xml drawable selector for enabled/disabled button colors
+
         switch (view.getId()) {
             case R.id.next_but:
                currPos = viewPager.getCurrentItem();
@@ -190,17 +195,11 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
             case R.id.next_create_butt:
                 //TODO if question have'nt been saved, disable next butt and show dialog
                 currPos = viewPager.getCurrentItem();
-                //if question list has more items than view pager
-//                Type type = new TypeToken<List<Question>>() {}.getType();
-//                questionList = gson.fromJson(preferences.getString(CreateQuizFragment.QUESTION_LIST, ""), type);
-//                if (questionList.size() <= currPos) {
-//                    MainActivity.viewPager.setCurrentItem(currPos + 1, true);
-//                } else if (questionList.size() > currPos){
+
                     createQuizFragments.add(CreateQuizFragment.newInstance(currPos + 1));
                     viewPager.getAdapter().notifyDataSetChanged();
 
                     MainActivity.viewPager.setCurrentItem(currPos + 1, true);
-//                }
 
 
                 break;
