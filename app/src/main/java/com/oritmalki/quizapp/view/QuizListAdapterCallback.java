@@ -7,5 +7,5 @@ import com.oritmalki.quizapp.model.Quiz;
  */
 
 public interface QuizListAdapterCallback {
-    void onAdapterClick(Quiz quiz);
+    void onAdapterClick(Quiz quiz, int pos);
 }

@@ -273,24 +273,17 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
                             Log.d("QuestionList", questionList.toString());
                             saveQuestion.setEnabled(false);
                             nextCreateBut.setEnabled(true);
-
                         }
                     }
                     catch (NullPointerException e) {
                         Toast.makeText(getContext(), "Please add answers to your question", Toast.LENGTH_SHORT).show();
                     }
 
-
-
                 } else {
 
                     questionET.requestFocus();
                     questionET.setError("Please fill in question text.");
                 }
-
-
-
-
 
                 break;
 
@@ -309,20 +302,24 @@ public class CreateQuizFragment extends Fragment implements View.OnClickListener
 
                 break;
             case R.id.save_quiz:
-                Quiz quiz = new Quiz(preferences.getString(QUIZ_NAME, ""),getQuestListFromSharedPreferences());
-                QuizRepository.getInstance().saveQuiz(quiz);
 
-                editor.putString(QUIZ_LIST, gson.toJson(QuizRepository.getInstance().getQuizList()));
-                editor.commit();
-                Intent intent = new Intent(getContext(), WelcomeActivity.class);
-                startActivity(intent);
+                if (getQuestListFromSharedPreferences() != null && getQuestListFromSharedPreferences().size() != 0) {
+
+                    Quiz quiz = new Quiz(preferences.getString(QUIZ_NAME, ""), getQuestListFromSharedPreferences());
+                    QuizRepository.getInstance().saveQuiz(quiz);
+
+                    editor.putString(QUIZ_LIST, gson.toJson(QuizRepository.getInstance().getQuizList()));
+                    editor.commit();
+                    Intent intent = new Intent(getContext(), WelcomeActivity.class);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getContext(), "Question list is empty. Save question and try again.", Toast.LENGTH_SHORT).show();
+                }
 
             default:
                 mOnButtonClickListener.onButtonClicked(v);
                 break;
         }
-
-
     }
 
     //methods

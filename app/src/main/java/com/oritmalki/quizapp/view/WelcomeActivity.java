@@ -29,6 +29,7 @@ public class WelcomeActivity extends AppCompatActivity implements WelcomFragment
     Button startQuiz;
     QuizListAdapterCallback quizListAdapterCallback;
     public static Quiz selectedQuiz;
+    public static int selectedQuizListPosition;
     TextView startQuizTv;
     public static final String QUIZ_KEY = "Quiz_Key";
     public static final String TO_CREATE_QUIZ_FRAGMENT = "to_create_quiz_fragment";
@@ -126,8 +127,9 @@ public class WelcomeActivity extends AppCompatActivity implements WelcomFragment
 
 
     @Override
-    public void onAdapterClick(Quiz quiz) {
+    public void onAdapterClick(Quiz quiz, int positionInList) {
         this.selectedQuiz = quiz;
+        this.selectedQuizListPosition = positionInList;
         startQuizTv.setText(quiz.getQuizName());
         welcome_container.setVisibility(View.GONE);
         list_content.setVisibility(View.GONE);

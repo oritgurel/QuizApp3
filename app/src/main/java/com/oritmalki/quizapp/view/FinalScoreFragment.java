@@ -118,6 +118,7 @@ public class FinalScoreFragment extends Fragment implements View.OnClickListener
 
                 break;
             case R.id.home:
+                QuestionFragment.isInReview = false;
                 Intent intent1 = new Intent(getContext(), WelcomeActivity.class);
                 startActivity(intent1);
         }

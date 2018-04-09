@@ -2,6 +2,7 @@ package com.oritmalki.quizapp.view;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Build.VERSION;
@@ -70,8 +71,6 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     String remark;
     SharedPreferences preferences;
     Editor editor;
-    public static final String INDEX_OF_CHECKED_BUTTON_KEY = "IndexOfCheckedButton";
-    public static int INDEX_OF_CHECKED_BUTTON = -1;
     public RadioGroup rg;
     public static boolean isInReview;
     public static Toast toast;
@@ -80,9 +79,9 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     Gson gson = new Gson();
 
 
-//    private List<Quiz> quizList;
-//    private Quiz quiz;
-    private List<Question> questions = new ArrayList<>(QuestionsRepository.getInstance().getQuestions());
+    private List<Quiz> quizList;
+
+    private List<Question> questions;
 //    public final static String SELECTED_QUIZ = "selected_quiz";
 
     public static QuestionFragment newInstance(int questionId) {
@@ -108,24 +107,24 @@ public class QuestionFragment extends Fragment implements View.OnClickListener, 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        preferences = getContext().getSharedPreferences(CreateQuizFragment.PREFS_NAME, 0);
+        editor = preferences.edit();
+
         int questionId = getArguments().getInt(ARGS_QUESTION_ID);
-//        isInReview = getActivity().getIntent().getExtras().getBoolean(WelcomeActivity.IS_IN_REVIEW);
 
-        //get selected quiz from intent
-//        quiz = (Quiz) getActivity().getIntent().getExtras().getSerializable(WelcomeActivity.QUIZ_KEY);
-//        questions = quiz.getQuestions();
+        //get question list from shared preferences
+        String quizListString = getActivity().getSharedPreferences(CreateQuizFragment.PREFS_NAME, 0).getString(CreateQuizFragment.QUIZ_LIST, "");
+        Type type = new TypeToken<List<Quiz>>() {}.getType();
+        quizList = gson.fromJson(quizListString, type);
+        int quizListPosition = WelcomeActivity.selectedQuizListPosition;
+        questions = quizList.get(quizListPosition).getQuestions();
 
-//        //save selected quiz in shared prefs
-//        preferences = getContext().getSharedPreferences(CreateQuizFragment.PREFS_NAME, 0);
-//        editor = preferences.edit();
-//        editor.putString(CreateQuizFragment.QUIZ_LIST, gson.toJson(quiz));
-//        editor.commit();
-//
-//        //get current question from shared prefs quiz
-//        Type type = new TypeToken<List<Quiz>>() {}.getType();
-//        quizList = gson.fromJson(preferences.getString(CreateQuizFragment.QUIZ_LIST, ""), type);
+        //save question list to repository and retrieve
 
         this.question = QuestionsRepository.getInstance().getQuestion(questionId);
+
+
+
     }
 
 

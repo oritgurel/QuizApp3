@@ -56,7 +56,7 @@ public class QuizListAdapter extends ArrayAdapter<Quiz> {
                 @Override
                 public void onClick(View v) {
                     try {
-                        mCallback.onAdapterClick(quizList.get(position));
+                        mCallback.onAdapterClick(quizList.get(position), position);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

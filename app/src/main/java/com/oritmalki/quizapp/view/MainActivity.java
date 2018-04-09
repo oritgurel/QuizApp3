@@ -27,7 +27,7 @@ import java.util.List;
 
 import static com.oritmalki.quizapp.view.QuestionFragment.toast;
 
-public class MainActivity extends AppCompatActivity implements OnButtonClickListener, QuizListAdapterCallback {
+public class MainActivity extends AppCompatActivity implements OnButtonClickListener {
 
     protected static ViewPager viewPager;
 
@@ -162,7 +162,6 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
         int currPos;
 
         //TODO replace bottom buttons with a bottom navigation menu bar
-        //TODO saveQuiz isn't enables till question list is not empty (show toast "question list is empty")
         //TODO convert save quiz butt into match parent width one
         //TODO set xml drawable selector for enabled/disabled button colors
 
@@ -259,8 +258,4 @@ public class MainActivity extends AppCompatActivity implements OnButtonClickList
         }
     }
 
-    @Override
-    public void onAdapterClick(Quiz quiz) {
-
-    }
 }

@@ -70,7 +70,9 @@ public class QuizListSelectionFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
 //        super.onListItemClick(l, v, position, id);
         Intent intent = new Intent(getContext(), MainActivity.class);
-        intent.putExtra("Questions_List", quizList.get(position));
+        int pos = WelcomeActivity.selectedQuizListPosition;
+        intent.putExtra("Questions_List_Pos", pos);
+        intent.putExtra("Question_List", quizList.indexOf(position));
         startActivity(intent);
     }
 
@@ -102,7 +104,6 @@ public class QuizListSelectionFragment extends ListFragment {
         //get quizList for adapter from shared prefs
         this.quizList = gson.fromJson(jsonPrefs, type);
 
-//        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.quiz_list_selection_fragment, container, false);
         adapter = new QuizListAdapter(
 
                 getActivity(), R.id.list, this.quizList, mCallback);
